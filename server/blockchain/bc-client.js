@@ -38,12 +38,15 @@ class BcClient {
       * crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore
       * crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts
       */
-      this._clientConfig = require(`../blockchain/${chConfigDirPath}/settings`);
-
+//      this._clientConfig = require(`../blockchain/${chConfigDirPath}/settings`);
+      this._clientConfig = require(`../blockchain/configuration/channel_local/settings`);
+//      this._clientConfig = require('/C/Users/wjsqh/Desktop/Dev/tcl/hyperledger/babychain_backend/server/blockchain/configuration/channel_local/settings');
       /*
        * Hyperledger Fabric Network Topology
        */
-      this._channelConfig = require(`../blockchain/${chConfigDirPath}/channelConfig`);
+//      this._channelConfig = require(`../blockchain/${chConfigDirPath}/channelConfig`);
+      this._channelConfig = require(`../blockchain/configuration/channel_local/channelConfig`);
+      //this._channelConfig = require('/C/Users/wjsqh/Desktop/Dev/tcl/hyperledger/babychain_backend/server/blockchain/configuration/channel_local/channelConfig');
       /* eslint-enable global-require */
 
       this._channelConfigDirPath = chConfigDirPath;
