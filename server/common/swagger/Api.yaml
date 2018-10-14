@@ -11,6 +11,8 @@ tags:
     description: Simple Balance Transfer Example
   - name: Specification
     description: The swagger API specification
+  - name: Babychain
+    description: babychain core function
 
 consumes:
   - application/json
@@ -50,6 +52,16 @@ definitions:
         type: string
       balance:
         type: integer
+ 
+  MessageBody:
+    type: object
+    title: example
+    required:
+      - Message
+    properties:
+      Message:
+        type: string
+        example: Message
 
 paths:
   /examples:
@@ -85,6 +97,24 @@ paths:
           required: true
           description: The id of the example to retrieve
           type: integer
+      responses:
+        200:
+          description: Return the example with the specified id
+        404:
+          description: Example not found
+
+  /examples/echo:
+    post:
+      tags:
+        - Examples
+      parameters:
+        - name: Message
+          in: body
+          required: true
+          description: Your Meesage
+          type: string
+          schema: 
+             $ref : "#/definitions/MessageBody"
       responses:
         200:
           description: Return the example with the specified id
@@ -138,6 +168,85 @@ paths:
         200:
           description: Returns User's Currently Balance
 
+  /babychain/register:
+    post:
+      tags:
+      - Babychain
+      parameters:
+      - name: register value
+        in: body
+        type : string
+        description: The key of the asset to register current value
+        required: true
+        schema:
+          type: object
+          properties:
+           key:
+            type: string
+           value:
+            type: string
+          example:
+           key: a
+           value: 1234test
+      description: Register first Key and Value
+      responses:
+        200:
+          description: Returns User's registered Value
+  /babychain/{key}:
+    get:
+      tags:
+      - Babychain
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: The key of the asset to retrieve current value
+        type: string
+      description: Get Current Value
+      responses:
+        200:
+          description: Returns User's Current Value
+  /babychain/modify:
+    post:
+      tags:
+      - Babychain
+      parameters:
+      - name: modify value
+        in: body
+        type : string
+        description: The key of the asset to change current value
+        required: true
+        schema:
+          type: object
+          properties:
+           key:
+            type: string
+           value:
+            type: string
+          example:
+           key: babychain
+           value: success
+      description: Get Current Value
+      responses:
+        200:
+          description: Returns User's Current Value
+
+  /babychain/delete/{key}:
+    get:
+      tags:
+      - Babychain
+      parameters:
+      - name: key
+        in: path
+        required: true
+        description: The key of the asset to delete current value
+        type: string
+      description: Delete Current Value
+      responses:
+        200:
+          description: Delete User's Current Value
+
+          
   /spec:
     get:
       tags:
