@@ -26,7 +26,7 @@ class BabyChainService {
     l.info(`${this.constructor.name}.byId(${req})`);
     l.info(req.files.upfile);
     l.info(req.files.upfile.originalname);
-   
+  
     upload.single(req.files.upfile.fieldname);
     upload.single('upfile');
 
@@ -39,9 +39,6 @@ class BabyChainService {
     args.push(req.files.upfile.originalname);
     args.push();
     return Promise.resolve(fbClient.invokeChaincode('babychain', 'uploadtest', args, []));
- 
-
-    res.send('baby test');
   
   }
 

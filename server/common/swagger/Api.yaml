@@ -258,11 +258,11 @@ paths:
           type: file
           required: true
           description: The key image of the image asset 
-        - name: value
-          in: path
+        - in: formData
+          name: value
+          type: string
           required: true
           description: The value of the image asset 
-          type: string
       produces:
         - text/plain
       responses:
@@ -272,7 +272,7 @@ paths:
             type: string
             example: "File upload successful"
 
-        
+       
 
   /spec:
     get:
