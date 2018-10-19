@@ -12,4 +12,6 @@ export default express
   .post('/register', controller.register)
   .get('/:key', controller.getBaby)
   .post('/modify',controller.modify)
+  .post('/delete',controller.postdelete)
+  .post('/uploadtest',controller.uploadtest)
   .get('/delete/:key',controller.delete);

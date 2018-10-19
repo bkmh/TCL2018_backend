@@ -246,7 +246,34 @@ paths:
         200:
           description: Delete User's Current Value
 
-          
+  /babychain/uploadtest:
+    post:
+      tags:
+      - Babychain
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          required: true
+          description: The key image of the image asset 
+        - name: value
+          in: path
+          required: true
+          description: The value of the image asset 
+          type: string
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+            example: "File upload successful"
+
+        
+
   /spec:
     get:
       tags:

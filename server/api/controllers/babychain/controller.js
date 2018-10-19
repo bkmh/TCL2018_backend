@@ -1,6 +1,17 @@
 import BabyChainService from '../../services/babychain/babychain.service';
 
+
 export class Controller {
+  uploadtest(req, res) {
+    BabyChainService
+      .uploadtest(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
+
+
   getBaby(req, res) {
     BabyChainService
       .getBaby(req, res)
@@ -37,5 +48,25 @@ export class Controller {
         else res.status(404).end();
       });
   }
+  
+  postdelete(req, res) {
+    BabyChainService
+      .postdelete(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
+
+  upload(req, res) {
+    BabyChainService
+      .postdelete(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
+
+
 }
 export default new Controller();

@@ -93,9 +93,20 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		// Deletes an entity from its state
 		return t.delete(stub, args)
 	}
+	
+	if function == "uploadtest" {
+		// Add an entity to its state
+		return t.uploadtest(stub, args)
+	}
 
 	logger.Errorf("Unknown action, check the first argument, must be one of 'register', 'delete', 'query', or 'modify'. But got: %v", args[0])
 	return shim.Error(fmt.Sprintf("Unknown action, check the first argument, must be one of 'delete', 'query', or 'move'. But got: %v", args[0]))
+}
+
+// Deletes an entity from state
+func (t *SimpleChaincode) uploadtest(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	logger.Info("########### Babychain uploadtest ###########")
+    return shim.Success(nil)
 }
 func (t *SimpleChaincode) register(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// must be an invoke
@@ -109,7 +120,12 @@ func (t *SimpleChaincode) register(stub shim.ChaincodeStubInterface, args []stri
 
 	key = args[0]
 	value = args[1]
-
+	//20181016 sally - query Before register.. if exists..error
+	Avalbytes, err := stub.GetState(key)
+	if Avalbytes != nil {
+		jsonResp := "{\"Error\":\"This key already Exists!! Failed to regist for " + key + "\"}"
+		return shim.Error(jsonResp)
+	}
 	// Write the state to the ledger
 	err = stub.PutState(key, []byte(value))
 	if err != nil {
