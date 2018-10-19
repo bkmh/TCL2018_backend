@@ -106,6 +106,12 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 // Deletes an entity from state
 func (t *SimpleChaincode) uploadtest(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	logger.Info("########### Babychain uploadtest ###########")
+	var fileName string
+	var value string
+	
+	fileName = args[0]
+	value = args[1]
+	logger.Info("fileName : "+fileName+", value : "+value)
     return shim.Success(nil)
 }
 func (t *SimpleChaincode) register(stub shim.ChaincodeStubInterface, args []string) pb.Response {

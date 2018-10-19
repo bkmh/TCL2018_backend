@@ -17,27 +17,40 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({storage: storage});
-
+const fs = require("fs");
 
 class BabyChainService {
   uploadtest(req,res){
 
     l.info('upload image test');
     l.info(`${this.constructor.name}.byId(${req})`);
+    //20181019 sally file information
     l.info(req.files.upfile);
     l.info(req.files.upfile.originalname);
-  
+    l.info(req.files.upfile.path);
+    //20181019 sally text value
+    l.info(req.body);
+    l.info(req.body.value);
+    //test1. not working
     upload.single(req.files.upfile.fieldname);
     upload.single('upfile');
 
-    l.info(req.formdata);
-    l.info(req.params);
-    l.info(req.body);
-    l.info(req.value);
-    l.info(req.params.value);
+    //test2. base64 enocoding test
+    var fileInfo = [];
+    var data = fs.readFileSync(req.files.upfile.path);
+    var base64Image = new Buffer(data.toString(),'base64');
+
+    fileInfo.push({
+      "originalName" : req.files.originalName,
+      "b64" : new Buffer(data).toString("base64")
+    });
+    fs.unlink(req.files.upfile.path);
+
     const args = [];
+    //args.push(fileInfo);
     args.push(req.files.upfile.originalname);
-    args.push();
+    args.push(req.body.value);
+   // args.push(base64Image);
     return Promise.resolve(fbClient.invokeChaincode('babychain', 'uploadtest', args, []));
   
   }
