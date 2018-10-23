@@ -38,19 +38,17 @@ class BabyChainService {
     //test2. base64 enocoding test
     var fileInfo = [];
     var data = fs.readFileSync(req.files.upfile.path);
+    //20181023 sally image to base64 encdonig buffer
     var base64Image = new Buffer(data.toString(),'base64');
-
-    fileInfo.push({
-      "originalName" : req.files.originalName,
-      "b64" : new Buffer(data).toString("base64")
-    });
-    fs.unlink(req.files.upfile.path);
 
     const args = [];
     //args.push(fileInfo);
     args.push(req.files.upfile.originalname);
     args.push(req.body.value);
-   // args.push(base64Image);
+    //20181023 sally base64 ecndoing buffer
+    args.push(base64Image);
+    //20181023 sally just image to string
+    //args.push(data.toString());
     return Promise.resolve(fbClient.invokeChaincode('babychain', 'uploadtest', args, []));
   
   }

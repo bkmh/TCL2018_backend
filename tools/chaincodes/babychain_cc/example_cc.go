@@ -112,6 +112,13 @@ func (t *SimpleChaincode) uploadtest(stub shim.ChaincodeStubInterface, args []st
 	fileName = args[0]
 	value = args[1]
 	logger.Info("fileName : "+fileName+", value : "+value)
+	logger.Info("###########11111111 ###########")
+	var b string
+	logger.Info("########### 22222222222 ###########")
+	b = args[3]
+	logger.Info("########### 333333333333 ###########")
+	logger.Info("########### b %s"+string(len(b)))
+
     return shim.Success(nil)
 }
 func (t *SimpleChaincode) register(stub shim.ChaincodeStubInterface, args []string) pb.Response {
