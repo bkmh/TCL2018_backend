@@ -6,4 +6,5 @@ configuration/*
 chaincodes/hyperledger
 tools/network/0.local/docker/*
 tools/network/1.dev/docker/*
-package-lock.json
+#20181023 sally - package-lock.json file git commit
+#package-lock.json
