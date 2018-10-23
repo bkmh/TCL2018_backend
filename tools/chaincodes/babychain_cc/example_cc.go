@@ -108,17 +108,22 @@ func (t *SimpleChaincode) uploadtest(stub shim.ChaincodeStubInterface, args []st
 	logger.Info("########### Babychain uploadtest ###########")
 	var fileName string
 	var value string
-	
+	var err error
+
 	fileName = args[0]
 	value = args[1]
 	logger.Info("fileName : "+fileName+", value : "+value)
-	logger.Info("###########11111111 ###########")
 	var b string
-	logger.Info("########### 22222222222 ###########")
-	b = args[3]
-	logger.Info("########### 333333333333 ###########")
+	b = args[2]
+	logger.Info("########### 111111111 ###########")
 	logger.Info("########### b %s"+string(len(b)))
-
+	logger.Info("########### "+b)
+	//err = stub.PutState(b, []byte(value))
+	//20181023 sally - text : key , image base64 encoding buffer - value success
+	err = stub.PutState(value, []byte(b))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
     return shim.Success(nil)
 }
 func (t *SimpleChaincode) register(stub shim.ChaincodeStubInterface, args []string) pb.Response {
