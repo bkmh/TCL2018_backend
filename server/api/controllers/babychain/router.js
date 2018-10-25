@@ -14,4 +14,5 @@ export default express
   .post('/modify',controller.modify)
   .post('/delete',controller.postdelete)
   .post('/uploadtest',controller.uploadtest)
+  .get('/readImage/:key',controller.readImage)
   .get('/delete/:key',controller.delete);

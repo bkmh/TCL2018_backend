@@ -272,7 +272,20 @@ paths:
             type: string
             example: "File upload successful"
 
-       
+  /babychain/readImage/{key}:
+    get:
+      tags:
+      - Babychain
+      parameters:
+        - in: path
+          name: key
+          type: string
+          required: true
+          description: The key string of the image asset 
+      responses:
+        200:
+          description: Get image successful
+    
 
   /spec:
     get:

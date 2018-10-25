@@ -99,11 +99,16 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.uploadtest(stub, args)
 	}
 
+	if function == "readImage" {
+		// Add an entity to its state
+		return t.readImage(stub, args)
+	}
+
 	logger.Errorf("Unknown action, check the first argument, must be one of 'register', 'delete', 'query', or 'modify'. But got: %v", args[0])
 	return shim.Error(fmt.Sprintf("Unknown action, check the first argument, must be one of 'delete', 'query', or 'move'. But got: %v", args[0]))
 }
 
-// Deletes an entity from state
+// 20181023 sally upload images with string key
 func (t *SimpleChaincode) uploadtest(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	logger.Info("########### Babychain uploadtest ###########")
 	var fileName string
@@ -115,9 +120,11 @@ func (t *SimpleChaincode) uploadtest(stub shim.ChaincodeStubInterface, args []st
 	logger.Info("fileName : "+fileName+", value : "+value)
 	var b string
 	b = args[2]
-	logger.Info("########### 111111111 ###########")
-	logger.Info("########### b %s"+string(len(b)))
+	//logger.Info("########### 111111111 ###########")
+	//logger.Info("########### b %s"+utf8.EncodeRune(b))
 	logger.Info("########### "+b)
+	//err = stub.PutState(utf8.DecodeRune(b), []byte(value))
+	//20181023 sally - utf-8 encdoing error,key shoud be a valid utf-8
 	//err = stub.PutState(b, []byte(value))
 	//20181023 sally - text : key , image base64 encoding buffer - value success
 	err = stub.PutState(value, []byte(b))
@@ -126,6 +133,33 @@ func (t *SimpleChaincode) uploadtest(stub shim.ChaincodeStubInterface, args []st
 	}
     return shim.Success(nil)
 }
+
+// 20181024 sally read images with string key
+func (t *SimpleChaincode) readImage(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	logger.Info("########### Babychain readImage ###########")
+	var key string
+	var err error
+
+	key = args[0]
+	logger.Info("key : "+key)
+	Avalbytes, err := stub.GetState(key)
+
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + key + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	if Avalbytes == nil {
+		jsonResp := "{\"Error\":\"Nil amount for " + key + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	jsonResp := "{\"key\":\"" + key + "\",\"value\":\"" +string(Avalbytes) + "\"}"
+	logger.Infof("Query Response:%s\n", jsonResp)
+	//return shim.Success(Avalbytes)
+	return shim.Success(Avalbytes)
+}
+
 func (t *SimpleChaincode) register(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// must be an invoke
 	var key string   // User key

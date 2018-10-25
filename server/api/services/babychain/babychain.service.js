@@ -7,7 +7,7 @@ const storage = multer.diskStorage({
   destination: function(req, files, cb) {
     l.info('111111');
     l.info(files);
-    cb(null, '../../uploads/'); //cb 콜백함수를 이용해 파일 저장 디렉토리 설정
+    cb(null, 'uploads/'); //cb 콜백함수를 이용해 파일 저장 디렉토리 설정
   },
   filename: function(req, files, cb) {
     l.info('2222222');
@@ -34,12 +34,16 @@ class BabyChainService {
     //test1. not working
     upload.single(req.files.upfile.fieldname);
     upload.single('upfile');
-
+    upload.single(req.files.upfile);
+    fs.writeFile(req.files.upfile.originalname,req.files.upfile,'utf-8',function(err){
+      l.info('File create?');
+    })
     //test2. base64 enocoding test
     var fileInfo = [];
     var data = fs.readFileSync(req.files.upfile.path);
     //20181023 sally image to base64 encdonig buffer
     var base64Image = new Buffer(data.toString(),'base64');
+    //var stringImage = data.toString();
 
     const args = [];
     //args.push(fileInfo);
@@ -48,9 +52,38 @@ class BabyChainService {
     //20181023 sally base64 ecndoing buffer
     args.push(base64Image);
     //20181023 sally just image to string
-    //args.push(data.toString());
+    //args.push(stringImage);
     return Promise.resolve(fbClient.invokeChaincode('babychain', 'uploadtest', args, []));
   
+  }
+  readImage(req, res) {
+    l.info('readImage test');
+    l.info('key = '+ req.params.key);
+    const args = [];
+    args.push(req.params.key);
+    //chaincode execute result..json형태로 return 받을 것 같은데..뭐지..
+    var base64Image = fbClient.queryChaincode('babychain', 'query', args, []);
+
+    //result is object Promise? object promise는 transaction.js에 생성과정이 정의되어 있음.
+    l.info('result = '+base64Image);
+    // Object.values()
+    var objValues = Object.values(base64Image);
+    l.info('objValues:', objValues);
+    // Object.keys() and map(),
+    var objKeysMap = Object.keys(base64Image).map((k) => obj[k]);
+    l.info('objKeysMap:', objKeysMap);
+    l.info('result string = '+base64Image.toString());
+    var res = Promise.resolve(base64Image);
+    l.info('res = '+res);
+    //decoding base64 to string->error
+    var stringImage = new Buffer(base64Image,'base64').toString('ascii');
+    l.info('stringImage = '+stringImage.toString());
+    
+    //file write.. 
+    //fs.writeFile("out.png",base64Image,'base64',function(err){
+    //  l.info('File create?');
+    //})
+    return res;
   }
 
   getBaby(req, res) {

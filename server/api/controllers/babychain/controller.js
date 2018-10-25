@@ -10,6 +10,15 @@ export class Controller {
         else res.status(404).end();
       });
   }
+  
+  readImage(req, res) {
+    BabyChainService
+      .readImage(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
 
 
   getBaby(req, res) {
