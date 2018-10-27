@@ -22,6 +22,7 @@ function format_query_resp(peer_responses) {
 
   // -- iter on each peer's response -- //
   for (const i in peer_responses) {
+    // utf-8 setting 부분..봐야함.
     const as_string = peer_responses[i].toString('utf8');
     let as_obj = {};
     ret.peer_payloads.push(as_string);
@@ -77,6 +78,7 @@ function queryChaincode(client, channelName, req, targets) {
     l.info(`Member '${invoker.getName()}' try to query ~`);
 
     const channel = client.getChannel(channelName);
+    l.info("channel : "+channel);
     const tx_id = client.newTransactionID();
 
     // send query
@@ -97,7 +99,9 @@ function queryChaincode(client, channelName, req, targets) {
           const result = [];
           for (let i = 0; i < response_payloads.length; i++) {
             result.push((response_payloads[i] instanceof Error) ? response_payloads : format_query_resp(response_payloads));
-            l.info(response_payloads);
+            l.info("transaction.js 파일 response_payloads");
+            l.info(format_query_resp(response_payloads));
+            //l.info(response_payloads);
           }
           resolve(result);
         } else {
