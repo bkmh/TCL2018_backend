@@ -2,18 +2,36 @@ import BabyChainService from '../../services/babychain/babychain.service';
 
 
 export class Controller {
-  uploadtest(req, res) {
+  uploadImageJSEncoding(req, res) {
     BabyChainService
-      .uploadtest(req, res)
+      .uploadImageJSEncoding(req, res)
       .then(r => {
         if (r) res.json(r);
         else res.status(404).end();
       });
   }
   
-  readImage(req, res) {
+  readImageJSDecoding(req, res) {
     BabyChainService
-      .readImage(req, res)
+      .readImageJSDecoding(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
+
+  uploadImageCCEncoding(req, res) {
+    BabyChainService
+      .uploadImageCCEncoding(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
+  
+  readImageCCDecoding(req, res) {
+    BabyChainService
+      .readImageCCDecoding(req, res)
       .then(r => {
         if (r) res.json(r);
         else res.status(404).end();

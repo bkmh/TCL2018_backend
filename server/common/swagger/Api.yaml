@@ -246,7 +246,7 @@ paths:
         200:
           description: Delete User's Current Value
 
-  /babychain/uploadtest:
+  /babychain/uploadImageJSEncoding:
     post:
       tags:
       - Babychain
@@ -272,7 +272,47 @@ paths:
             type: string
             example: "File upload successful"
 
-  /babychain/readImage/{key}:
+  /babychain/readImageJSDecoding/{key}:
+    get:
+      tags:
+      - Babychain
+      parameters:
+        - in: path
+          name: key
+          type: string
+          required: true
+          description: The key string of the image asset 
+      responses:
+        200:
+          description: Get image successful
+
+  /babychain/uploadImageCCEncoding:
+    post:
+      tags:
+      - Babychain
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          required: true
+          description: The key image of the image asset 
+        - in: formData
+          name: value
+          type: string
+          required: true
+          description: The value of the image asset 
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+            example: "File upload successful"
+
+  /babychain/readImageCCDecoding/{key}:
     get:
       tags:
       - Babychain

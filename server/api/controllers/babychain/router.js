@@ -13,6 +13,8 @@ export default express
   .get('/:key', controller.getBaby)
   .post('/modify',controller.modify)
   .post('/delete',controller.postdelete)
-  .post('/uploadtest',controller.uploadtest)
-  .get('/readImage/:key',controller.readImage)
+  .post('/uploadImageJSEncoding',controller.uploadImageJSEncoding)
+  .get('/readImageJSDecoding/:key',controller.readImageJSDecoding)
+  .post('/uploadImageCCEncoding',controller.uploadImageCCEncoding)
+  .get('/readImageCCDecoding/:key',controller.readImageCCDecoding)
   .get('/delete/:key',controller.delete);

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
+	b64 "encoding/base64"
 )
 
 var logger = shim.NewLogger("BabyChain example_cc!!!!!!!!")
@@ -94,23 +95,26 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.delete(stub, args)
 	}
 	
-	if function == "uploadtest" {
+	if function == "uploadImageJSEncoding" {
 		// Add an entity to its state
-		return t.uploadtest(stub, args)
+		return t.uploadImageJSEncoding(stub, args)
 	}
 
-	if function == "readImage" {
+	if function == "uploadImageCCEncoding" {
 		// Add an entity to its state
-		return t.readImage(stub, args)
+		return t.uploadImageCCEncoding(stub, args)
+	}
+
+	if function == "readImageCCDecoding" {
+		// Add an entity to its state
+		return t.readImageCCDecoding(stub, args)
 	}
 
 	logger.Errorf("Unknown action, check the first argument, must be one of 'register', 'delete', 'query', or 'modify'. But got: %v", args[0])
 	return shim.Error(fmt.Sprintf("Unknown action, check the first argument, must be one of 'delete', 'query', or 'move'. But got: %v", args[0]))
 }
-
-// 20181023 sally upload images with string key
-func (t *SimpleChaincode) uploadtest(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	logger.Info("########### Babychain uploadtest ###########")
+func (t *SimpleChaincode) uploadImageJSEncoding(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	logger.Info("########### Babychain uploadImageJSEncoding ###########")
 	var fileName string
 	var value string
 	var err error
@@ -120,14 +124,32 @@ func (t *SimpleChaincode) uploadtest(stub shim.ChaincodeStubInterface, args []st
 	logger.Info("fileName : "+fileName+", value : "+value)
 	var b string
 	b = args[2]
-	//logger.Info("########### 111111111 ###########")
-	//logger.Info("########### b %s"+utf8.EncodeRune(b))
+
 	logger.Info("########### "+b)
-	//err = stub.PutState(utf8.DecodeRune(b), []byte(value))
-	//20181023 sally - utf-8 encdoing error,key shoud be a valid utf-8
-	//err = stub.PutState(b, []byte(value))
-	//20181023 sally - text : key , image base64 encoding buffer - value success
+
 	err = stub.PutState(value, []byte(b))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+    return shim.Success(nil)
+}
+// 20181023 sally upload images with string key
+func (t *SimpleChaincode) uploadImageCCEncoding(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	logger.Info("########### Babychain uploadImageCCEncoding ###########")
+	var fileName string
+	var value string
+	var err error
+
+	fileName = args[0]
+	value = args[1]
+	logger.Info("fileName : "+fileName+", value : "+value)
+	var b string
+	b = args[2]
+	sEnc := b64.StdEncoding.EncodeToString([]byte(b))
+	logger.Info("Before Encoding : "+b)
+    logger.Info("Base64 Encoding : "+sEnc)
+	//value가 key가 되버림..이미지 string 값 base64로 encoding해서 byte array로 couch DB에 insert
+	err = stub.PutState(value, []byte(sEnc))
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -135,8 +157,8 @@ func (t *SimpleChaincode) uploadtest(stub shim.ChaincodeStubInterface, args []st
 }
 
 // 20181024 sally read images with string key
-func (t *SimpleChaincode) readImage(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	logger.Info("########### Babychain readImage ###########")
+func (t *SimpleChaincode) readImageCCDecoding(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	logger.Info("########### Babychain readImageCCDecoding ###########")
 	var key string
 	var err error
 
@@ -156,8 +178,13 @@ func (t *SimpleChaincode) readImage(stub shim.ChaincodeStubInterface, args []str
 
 	jsonResp := "{\"key\":\"" + key + "\",\"value\":\"" +string(Avalbytes) + "\"}"
 	logger.Infof("Query Response:%s\n", jsonResp)
-	//return shim.Success(Avalbytes)
-	return shim.Success(Avalbytes)
+    //couch DB에 base64로 encoding된 data 
+	data := string(Avalbytes)
+	//data를  decoding 하여 return
+	sDec, _ := b64.StdEncoding.DecodeString(data)
+    logger.Info("Base64 Decoding : "+string(sDec))
+
+	return shim.Success(sDec)
 }
 
 func (t *SimpleChaincode) register(stub shim.ChaincodeStubInterface, args []string) pb.Response {

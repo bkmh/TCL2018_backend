@@ -100,7 +100,7 @@ function queryChaincode(client, channelName, req, targets) {
           for (let i = 0; i < response_payloads.length; i++) {
             result.push((response_payloads[i] instanceof Error) ? response_payloads : format_query_resp(response_payloads));
             l.info("transaction.js 파일 response_payloads");
-            l.info(format_query_resp(response_payloads));
+            //l.info(format_query_resp(response_payloads));
             //l.info(response_payloads);
           }
           resolve(result);

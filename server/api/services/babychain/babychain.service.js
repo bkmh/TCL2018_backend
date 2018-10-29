@@ -38,83 +38,89 @@ var upload = multer({
 
 
 class BabyChainService {
-  uploadtest(req,res){
+
+  uploadImageJSEncoding(req,res){
     l.info('upload image test');
     l.info(`${this.constructor.name}.byId(${req})`);
     //20181019 sally file information
-    var file = req.files.upfile;
     l.info(req.files.upfile);
     l.info(req.files.upfile.originalname);
-    l.info(req.files.upfile.path);
-
-        //test1. not working
-        upload.single(req.files.upfile.fieldname);
-        upload.single(file);
-        upload.single('upfile');
-        upload.single(req.files.upfile);
     //20181019 sally text value
-    l.info(req.body);
-    l.info(req.body.value);
+     l.info(req.body.value);
     //test2. base64 enocoding test
-    var fileInfo = [];
     var data = fs.readFileSync(req.files.upfile.path);
-    //fs.writeFile(req.files.upfile.originalname,data,'utf-8',function(err){
-    //  l.info('File create?');
-    //})
-    //20181023 sally image to base64 encdonig buffer
     var base64Image = new Buffer(data.toString(),'base64');
-    //var stringImage = data.toString();
-
     const args = [];
-    //args.push(fileInfo);
     args.push(req.files.upfile.originalname);
     args.push(req.body.value);
     //20181023 sally base64 ecndoing buffer
     args.push(base64Image);
-    //20181023 sally just image to string
-    //args.push(stringImage);
-    return Promise.resolve(fbClient.invokeChaincode('babychain', 'uploadtest', args, []));
+  
+    return Promise.resolve(fbClient.invokeChaincode('babychain', 'uploadImageJSEncoding', args, []));
   
   }
-  readImage(req, res) {
+
+  readImageJSDecoding(req, res) {
     l.info('readImage test');
     l.info('key = '+ req.params.key);
     const args = [];
     args.push(req.params.key);
-    //chaincode execute result..json형태로 return 받을 것 같은데..뭐지..
-    var base64Image = fbClient.queryChaincode('babychain', 'query', args, []);
+    Promise.resolve(fbClient.queryChaincode('babychain', 'query', args, []))
+    .then(result=>{
 
-    //result is object Promise? object promise는 transaction.js에 생성과정이 정의되어 있음.
-    l.info('result = '+base64Image);
-    // Object.values()
-    //var objValues = Object.values(base64Image);
-    //l.info('objValues:', objValues);
-    // Object.keys() and map(),
-    //var objKeysMap = Object.keys(base64Image).map((k) => obj[k]);
-    //l.info('objKeysMap:', objKeysMap);
-    //l.info('result string = '+base64Image.toString());
-
-    var res = Promise.resolve(base64Image);
-    l.info('res = '+res);
-    l.info(res.values);
-    //l.info(Promise.values(base64Image));
-    l.info(Promise.keys);
-    l.info(Promise.prototype.all);
-    l.info(res.peer_payloads);
-    //l.info('JSON1:',JSON.parse(res));
-    l.info('JSON2:',JSON.stringify(res));
-    //l.info(Promise.prototype.all(base64Image));
-    l.info('payload = '+  res.all);
-    //decoding base64 to string->error
-    //var stringImage = new Buffer(res,'base64').toString('ascii');
-    //l.info('stringImage = '+stringImage.toString());
-    
-    //file write.. 
-    //fs.writeFile("out.png",base64Image,'base64',function(err){
-    //  l.info('File create?');
-    //})
-    return res;
+      l.info('----------result[0].peer_payloads--------');
+      l.info(result[0].peer_payloads);
+      var stringImage = new Buffer(result[0].peer_payloads,'base64').toString('ascii')
+      l.info('stringImage = '+stringImage.toString());
+      //20181030 sally
+      //to do - base64 encoding 했던 것을 decode하고 image file로 보여주는것 까지 구현해야함.. 
+      //구현한 것을 return result에 setting하는 것도 필요함.
+    });
+    return Promise.resolve(fbClient.queryChaincode('babychain', 'query', args, []));
   }
+
+  uploadImageCCEncoding(req,res){
+    l.info('upload image test');
+    l.info(`${this.constructor.name}.byId(${req})`);
+    l.info(req.files.upfile);
+    l.info(req.files.upfile.originalname);
+    //20181019 sally text value
+    l.info(req.body.value);
+    //just read data -> to string
+    var data = fs.readFileSync(req.files.upfile.path);
+    var stringImage = data.toString();
+    const args = [];
+    args.push(req.files.upfile.originalname);
+    args.push(req.body.value);
+    //20181023 sally just image to string
+    args.push(stringImage);
+    return Promise.resolve(fbClient.invokeChaincode('babychain', 'uploadImageCCEncoding', args, []));
+  
+  }
+
+
+  readImageCCDecoding(req, res) {
+    l.info('readImage test');
+    const args = [];
+    args.push(req.params.key);
+    l.info("11111111111111111111111111111111111111111111111111111111111111111");
+    Promise.resolve(fbClient.queryChaincode('babychain', 'readImage', args, []))
+    .then(result=>{
+      //l.info('----------promise--------');
+      //l.info(result);
+      //l.info('----------result[0]--------');
+      //l.info(result[0]);
+      l.info('----------result[0].peer_payloads--------');
+      l.info(result[0].peer_payloads);      
+      //20181030 sally
+      //to do - 결과 string을  image file로 보여주는것 까지 구현해야함.(decoding은 완료된 string임.)
+      //구현한 것을 return result에 setting하는 것도 필요함.
+    });
+
+    return Promise.resolve(fbClient.queryChaincode('babychain', 'readImageCCDecoding', args, []));
+
+  }
+
 
   getBaby(req, res) {
     l.info('getbaby test');
