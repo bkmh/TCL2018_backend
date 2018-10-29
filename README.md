@@ -43,7 +43,7 @@ web에서 localhost:3500 접속 - restful API swagger 페이지
 
 #10.couchDB 접속
 
-http://localhost:5984/_utils/#/_all_dbs
+http://192.168.99.100:5984/_utils/#/_all_dbs
 
 #11. babychain tab의 CRUD 해보기.
 
@@ -55,6 +55,12 @@ chaincode 수정시
 3. cd tools/network
 4. sh upgrade-chaincode.sh chaincode명 chaincode버전
 5. 2번 chaincode setup 시에도 마찬가지..
+
+
+
+#5~8 한번에 수행
+cd tools/network
+sh BlockchainNetworkAll.sh
 
 ````# Simple Balance API
 
