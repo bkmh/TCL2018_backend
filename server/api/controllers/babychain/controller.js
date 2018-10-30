@@ -3,6 +3,8 @@ import BabyChainService from '../../services/babychain/babychain.service';
 
 export class Controller {
 
+  // 20181030 BKMH 기존 uploadImage 원복
+  // babychain.service.js 연관
   uploadImage(req, res) {
     BabyChainService
       .uploadImage(req, res)
@@ -11,7 +13,9 @@ export class Controller {
         else res.status(404).end();
       });
   }
-  
+
+  // 20181030 BKMH 기존 readImage 원복
+  // babychain.service.js 연관
   readImage(req, res) {
     BabyChainService
       .readImage(req, res)

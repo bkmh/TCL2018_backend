@@ -38,28 +38,29 @@ var upload = multer({
 
 
 class BabyChainService {
-
-  uploadImage(req,res) {
+  // 20181030 BKMH 기존 uploadImage 복원
+  uploadImage(req, res) {
     l.info('upload image test');
     l.info(`${this.constructor.name}.byId(${req})`);
-    //20181019 sally file information
+    // 20181019 sally file information
     l.info(req.files.upfile);
     l.info(req.files.upfile.originalname);
-    //20181019 sally text value
+    // 20181019 sally text value
      l.info(req.body.value);
-    //test2. base64 enocoding test
+    // 20181030 BKMH readFile를 이용하여 Buffer를 encoding= base64 로 생성
     var data = fs.readFileSync(req.files.upfile.path, 'base64');
-    //var base64Image = new Buffer(data.toString(),'base64');
+    // var base64Image = new Buffer(data.toString(),'base64');
     const args = [];
     args.push(req.files.upfile.originalname);
     args.push(req.body.value);
-    //20181023 sally base64 ecndoing buffer
+    // 20181023 sally base64 ecndoing buffer
     args.push(data);
   
     return Promise.resolve(fbClient.invokeChaincode('babychain', 'uploadImage', args, []));
   
   }
 
+  // 20181030 BKMH 기존 uploadImage 복원 
   readImage(req, res) {
     l.info('readImage test');
     l.info('key = '+ req.params.key);
@@ -68,7 +69,6 @@ class BabyChainService {
     
     return Promise.resolve(fbClient.queryChaincode('babychain', 'query', args, []));
   }
-
 
   uploadImageJSEncoding(req,res){
     l.info('upload image test');

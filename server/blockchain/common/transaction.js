@@ -78,7 +78,7 @@ function queryChaincode(client, channelName, req, targets) {
     l.info(`Member '${invoker.getName()}' try to query ~`);
 
     const channel = client.getChannel(channelName);
-    l.info("channel : "+channel);
+    l.info('channel : ' + channel);
     const tx_id = client.newTransactionID();
 
     // send query
@@ -89,7 +89,7 @@ function queryChaincode(client, channelName, req, targets) {
       args: req.args ? req.args : [],
     };
 
-    if (targets && targets.length != 0) {
+    if (targets && targets.length !== 0) {
       request.targets = targets;
     }
 
