@@ -16,12 +16,12 @@ limitations under the License.
 
 package main
 
-
 import (
+	b64 "encoding/base64"
 	"fmt"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
-	b64 "encoding/base64"
 )
 
 var logger = shim.NewLogger("BabyChain example_cc!!!!!!!!")
@@ -31,7 +31,7 @@ type SimpleChaincode struct {
 }
 
 // Init - initialize the state
-func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response  {
+func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	logger.Info("########### Babychain example_cc Init!!!!!!!!!!! ###########")
 
 	_, args := stub.GetFunctionAndParameters()
@@ -39,7 +39,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response  {
 	var Aval, Bval string // value
 	var err error
 
-    if len(args) != 4 {
+	if len(args) != 4 {
 		return shim.Error("Incorrect number of arguments. Expecting 4")
 	}
 
@@ -94,7 +94,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		// Deletes an entity from its state
 		return t.delete(stub, args)
 	}
-	
+
 	if function == "uploadImageJSEncoding" {
 		// Add an entity to its state
 		return t.uploadImageJSEncoding(stub, args)
@@ -110,6 +110,16 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.readImageCCDecoding(stub, args)
 	}
 
+	if function == "uploadImage" {
+		// Add an entity to its state
+		return t.uploadImage(stub, args)
+	}
+
+	if function == "readImage" {
+		// Add an entity to its state
+		return t.readImage(stub, args)
+	}
+
 	logger.Errorf("Unknown action, check the first argument, must be one of 'register', 'delete', 'query', or 'modify'. But got: %v", args[0])
 	return shim.Error(fmt.Sprintf("Unknown action, check the first argument, must be one of 'delete', 'query', or 'move'. But got: %v", args[0]))
 }
@@ -121,18 +131,19 @@ func (t *SimpleChaincode) uploadImageJSEncoding(stub shim.ChaincodeStubInterface
 
 	fileName = args[0]
 	value = args[1]
-	logger.Info("fileName : "+fileName+", value : "+value)
+	logger.Info("fileName : " + fileName + ", value : " + value)
 	var b string
 	b = args[2]
 
-	logger.Info("########### "+b)
+	logger.Info("########### " + b)
 
 	err = stub.PutState(value, []byte(b))
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-    return shim.Success(nil)
+	return shim.Success(nil)
 }
+
 // 20181023 sally upload images with string key
 func (t *SimpleChaincode) uploadImageCCEncoding(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	logger.Info("########### Babychain uploadImageCCEncoding ###########")
@@ -142,18 +153,18 @@ func (t *SimpleChaincode) uploadImageCCEncoding(stub shim.ChaincodeStubInterface
 
 	fileName = args[0]
 	value = args[1]
-	logger.Info("fileName : "+fileName+", value : "+value)
+	logger.Info("fileName : " + fileName + ", value : " + value)
 	var b string
 	b = args[2]
 	sEnc := b64.StdEncoding.EncodeToString([]byte(b))
-	logger.Info("Before Encoding : "+b)
-    logger.Info("Base64 Encoding : "+sEnc)
+	logger.Info("Before Encoding : " + b)
+	logger.Info("Base64 Encoding : " + sEnc)
 	//value가 key가 되버림..이미지 string 값 base64로 encoding해서 byte array로 couch DB에 insert
 	err = stub.PutState(value, []byte(sEnc))
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-    return shim.Success(nil)
+	return shim.Success(nil)
 }
 
 // 20181024 sally read images with string key
@@ -163,7 +174,7 @@ func (t *SimpleChaincode) readImageCCDecoding(stub shim.ChaincodeStubInterface, 
 	var err error
 
 	key = args[0]
-	logger.Info("key : "+key)
+	logger.Info("key : " + key)
 	Avalbytes, err := stub.GetState(key)
 
 	if err != nil {
@@ -176,21 +187,74 @@ func (t *SimpleChaincode) readImageCCDecoding(stub shim.ChaincodeStubInterface, 
 		return shim.Error(jsonResp)
 	}
 
-	jsonResp := "{\"key\":\"" + key + "\",\"value\":\"" +string(Avalbytes) + "\"}"
+	jsonResp := "{\"key\":\"" + key + "\",\"value\":\"" + string(Avalbytes) + "\"}"
 	logger.Infof("Query Response:%s\n", jsonResp)
-    //couch DB에 base64로 encoding된 data 
+	//couch DB에 base64로 encoding된 data
 	data := string(Avalbytes)
 	//data를  decoding 하여 return
 	sDec, _ := b64.StdEncoding.DecodeString(data)
-    logger.Info("Base64 Decoding : "+string(sDec))
+	logger.Info("Base64 Decoding : " + string(sDec))
 
 	return shim.Success(sDec)
 }
 
+// 20181023 sally upload images with string key
+func (t *SimpleChaincode) uploadImage(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	logger.Info("########### Babychain uploadImage ###########")
+	var fileName string
+	var value string
+	var err error
+
+	fileName = args[0]
+	value = args[1]
+	logger.Info("fileName : " + fileName + ", value : " + value)
+	var b string
+	b = args[2]
+	sEnc := b64.StdEncoding.EncodeToString([]byte(b))
+	logger.Info("Before Encoding : " + b)
+	logger.Info("Base64 Encoding : " + sEnc)
+	//value가 key가 되버림..이미지 string 값 base64로 encoding해서 byte array로 couch DB에 insert
+	err = stub.PutState(value, []byte(sEnc))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	return shim.Success(nil)
+}
+
+// 20181024 sally read images with string key
+func (t *SimpleChaincode) readImage(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	logger.Info("########### Babychain readImage ###########")
+	var key string
+	var err error
+
+	key = args[0]
+	logger.Info("key : " + key)
+	Avalbytes, err := stub.GetState(key)
+
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + key + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	if Avalbytes == nil {
+		jsonResp := "{\"Error\":\"Nil amount for " + key + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	jsonResp := "{\"key\":\"" + key + "\",\"value\":\"" + string(Avalbytes) + "\"}"
+	logger.Infof("Query Response:%s\n", jsonResp)
+	//couch DB에 base64로 encoding된 data
+	data := string(Avalbytes)
+	//data를  decoding 하여 return
+	sDec, _ := b64.StdEncoding.DecodeString(data)
+	logger.Info("Base64 Decoding : " + string(sDec))
+
+	return shim.Success(sDec)
+}
 func (t *SimpleChaincode) register(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// must be an invoke
 	var key string   // User key
-	var value string // 
+	var value string //
 	var err error
 
 	if len(args) != 2 {
@@ -211,7 +275,7 @@ func (t *SimpleChaincode) register(stub shim.ChaincodeStubInterface, args []stri
 		return shim.Error(err.Error())
 	}
 
-    return shim.Success([]byte("register succeed!!!"))
+	return shim.Success([]byte("register succeed!!!"))
 }
 
 // Query callback representing the query of a chaincode
@@ -238,15 +302,15 @@ func (t *SimpleChaincode) query(stub shim.ChaincodeStubInterface, args []string)
 		return shim.Error(jsonResp)
 	}
 
-	jsonResp := "{\"key\":\"" + key + "\",\"value\":\"" +string(Avalbytes) + "\"}"
+	jsonResp := "{\"key\":\"" + key + "\",\"value\":\"" + string(Avalbytes) + "\"}"
 	logger.Infof("Query Response:%s\n", jsonResp)
 	return shim.Success(Avalbytes)
 }
 
 func (t *SimpleChaincode) modify(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// must be an invoke
-	var key, modifyValue string    // Entities
-	var Aval string // Asset holdings
+	var key, modifyValue string // Entities
+	var Aval string             // Asset holdings
 	var err error
 
 	if len(args) != 2 {
@@ -275,10 +339,8 @@ func (t *SimpleChaincode) modify(stub shim.ChaincodeStubInterface, args []string
 		return shim.Error(err.Error())
 	}
 
-    return shim.Success([]byte("modify succeed"))
+	return shim.Success([]byte("modify succeed"))
 }
-
-
 
 // Deletes an entity from state
 func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string) pb.Response {
@@ -296,8 +358,6 @@ func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string
 
 	return shim.Success(nil)
 }
-
-
 
 func main() {
 	err := shim.Start(new(SimpleChaincode))

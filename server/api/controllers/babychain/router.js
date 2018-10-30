@@ -17,4 +17,7 @@ export default express
   .get('/readImageJSDecoding/:key',controller.readImageJSDecoding)
   .post('/uploadImageCCEncoding',controller.uploadImageCCEncoding)
   .get('/readImageCCDecoding/:key',controller.readImageCCDecoding)
-  .get('/delete/:key',controller.delete);
+  .get('/delete/:key',controller.delete)
+  .post('/uploadImage',controller.uploadImage)
+  .get('/readImage/:key',controller.readImage);
+

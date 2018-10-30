@@ -6,7 +6,7 @@ const fbClient = require('../../../blockchain/bc-client');
 const fileUpload = require('express-fileupload');
 //20181027 sally multer test
 const multer = require('multer');
-const fs = require("fs");
+const fs = require('fs');
 
 
 var storage = multer.diskStorage({
