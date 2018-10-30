@@ -123,6 +123,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	logger.Errorf("Unknown action, check the first argument, must be one of 'register', 'delete', 'query', or 'modify'. But got: %v", args[0])
 	return shim.Error(fmt.Sprintf("Unknown action, check the first argument, must be one of 'delete', 'query', or 'move'. But got: %v", args[0]))
 }
+
 func (t *SimpleChaincode) uploadImageJSEncoding(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	logger.Info("########### Babychain uploadImageJSEncoding ###########")
 	var fileName string
@@ -200,7 +201,7 @@ func (t *SimpleChaincode) readImageCCDecoding(stub shim.ChaincodeStubInterface, 
 
 // 20181023 sally upload images with string key
 func (t *SimpleChaincode) uploadImage(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	logger.Info("########### Babychain uploadImage ###########")
+	logger.Info("########### Babychain uploadImageJSEncoding ###########")
 	var fileName string
 	var value string
 	var err error
@@ -210,11 +211,10 @@ func (t *SimpleChaincode) uploadImage(stub shim.ChaincodeStubInterface, args []s
 	logger.Info("fileName : " + fileName + ", value : " + value)
 	var b string
 	b = args[2]
-	sEnc := b64.StdEncoding.EncodeToString([]byte(b))
-	logger.Info("Before Encoding : " + b)
-	logger.Info("Base64 Encoding : " + sEnc)
-	//value가 key가 되버림..이미지 string 값 base64로 encoding해서 byte array로 couch DB에 insert
-	err = stub.PutState(value, []byte(sEnc))
+
+	logger.Info("########### " + b)
+
+	err = stub.PutState(value, []byte(b))
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -243,13 +243,9 @@ func (t *SimpleChaincode) readImage(stub shim.ChaincodeStubInterface, args []str
 
 	jsonResp := "{\"key\":\"" + key + "\",\"value\":\"" + string(Avalbytes) + "\"}"
 	logger.Infof("Query Response:%s\n", jsonResp)
-	//couch DB에 base64로 encoding된 data
-	data := string(Avalbytes)
-	//data를  decoding 하여 return
-	sDec, _ := b64.StdEncoding.DecodeString(data)
-	logger.Info("Base64 Decoding : " + string(sDec))
 
-	return shim.Success(sDec)
+	// 20181030 BKMH 기존 로직과 동일하게 encoding 없이 query 수행
+	return shim.Success(Avalbytes)
 }
 func (t *SimpleChaincode) register(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// must be an invoke

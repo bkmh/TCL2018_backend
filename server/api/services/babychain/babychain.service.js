@@ -39,7 +39,7 @@ var upload = multer({
 
 class BabyChainService {
 
-  uploadImage(req,res){
+  uploadImage(req,res) {
     l.info('upload image test');
     l.info(`${this.constructor.name}.byId(${req})`);
     //20181019 sally file information
