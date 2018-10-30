@@ -39,6 +39,37 @@ var upload = multer({
 
 class BabyChainService {
 
+  uploadImage(req,res){
+    l.info('upload image test');
+    l.info(`${this.constructor.name}.byId(${req})`);
+    //20181019 sally file information
+    l.info(req.files.upfile);
+    l.info(req.files.upfile.originalname);
+    //20181019 sally text value
+     l.info(req.body.value);
+    //test2. base64 enocoding test
+    var data = fs.readFileSync(req.files.upfile.path, 'base64');
+    //var base64Image = new Buffer(data.toString(),'base64');
+    const args = [];
+    args.push(req.files.upfile.originalname);
+    args.push(req.body.value);
+    //20181023 sally base64 ecndoing buffer
+    args.push(data);
+  
+    return Promise.resolve(fbClient.invokeChaincode('babychain', 'uploadImage', args, []));
+  
+  }
+
+  readImage(req, res) {
+    l.info('readImage test');
+    l.info('key = '+ req.params.key);
+    const args = [];
+    args.push(req.params.key);
+    
+    return Promise.resolve(fbClient.queryChaincode('babychain', 'query', args, []));
+  }
+
+
   uploadImageJSEncoding(req,res){
     l.info('upload image test');
     l.info(`${this.constructor.name}.byId(${req})`);
@@ -56,7 +87,7 @@ class BabyChainService {
     //20181023 sally base64 ecndoing buffer
     args.push(base64Image);
   
-    return Promise.resolve(fbClient.invokeChaincode('babychain', 'uploadImageJSEncoding', args, []));
+    return Promise.resolve(fbClient.invokeChaincode('babychain', 'uploadImage', args, []));
   
   }
 

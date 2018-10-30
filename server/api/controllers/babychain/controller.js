@@ -2,6 +2,25 @@ import BabyChainService from '../../services/babychain/babychain.service';
 
 
 export class Controller {
+
+  uploadImage(req, res) {
+    BabyChainService
+      .uploadImage(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
+  
+  readImage(req, res) {
+    BabyChainService
+      .readImage(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
+  
   uploadImageJSEncoding(req, res) {
     BabyChainService
       .uploadImageJSEncoding(req, res)
