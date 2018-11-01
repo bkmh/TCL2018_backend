@@ -13,11 +13,11 @@ export default express
   .get('/:key', controller.getBaby)
   .post('/modify',controller.modify)
   .post('/delete',controller.postdelete)
-  .post('/uploadImageJSEncoding',controller.uploadImageJSEncoding)
-  .get('/readImageJSDecoding/:key',controller.readImageJSDecoding)
-  .post('/uploadImageCCEncoding',controller.uploadImageCCEncoding)
-  .get('/readImageCCDecoding/:key',controller.readImageCCDecoding)
   .get('/delete/:key',controller.delete)
   .post('/uploadImage',controller.uploadImage)
-  .get('/readImage/:key',controller.readImage);
+  .get('/readImage/:key',controller.readImage)
+  .post('/uploadImageToText',controller.uploadImageToText)
+  .post('/readImageToText',controller.readImageToText)
+  .post('/modifyImageToText',controller.modifyImageToText)
+  .post('/deleteImageToText',controller.deleteImageToText);
 

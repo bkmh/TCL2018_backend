@@ -24,44 +24,44 @@ export class Controller {
         else res.status(404).end();
       });
   }
-  
-  uploadImageJSEncoding(req, res) {
+  // 20181101 sally upload image to text
+  uploadImageToText(req, res) {
     BabyChainService
-      .uploadImageJSEncoding(req, res)
-      .then(r => {
-        if (r) res.json(r);
-        else res.status(404).end();
-      });
-  }
-  
-  readImageJSDecoding(req, res) {
-    BabyChainService
-      .readImageJSDecoding(req, res)
+      .uploadImageToText(req, res)
       .then(r => {
         if (r) res.json(r);
         else res.status(404).end();
       });
   }
 
-  uploadImageCCEncoding(req, res) {
+  // 20181101 sally read
+  readImageToText(req, res) {
     BabyChainService
-      .uploadImageCCEncoding(req, res)
+      .readImageToText(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
+
+  modifyImageToText(req, res) {
+    BabyChainService
+      .modifyImageToText(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
+
+  deleteImageToText(req, res) {
+    BabyChainService
+      .deleteImageToText(req, res)
       .then(r => {
         if (r) res.json(r);
         else res.status(404).end();
       });
   }
   
-  readImageCCDecoding(req, res) {
-    BabyChainService
-      .readImageCCDecoding(req, res)
-      .then(r => {
-        if (r) res.json(r);
-        else res.status(404).end();
-      });
-  }
-
-
   getBaby(req, res) {
     BabyChainService
       .getBaby(req, res)
@@ -100,15 +100,6 @@ export class Controller {
   }
   
   postdelete(req, res) {
-    BabyChainService
-      .postdelete(req, res)
-      .then(r => {
-        if (r) res.json(r);
-        else res.status(404).end();
-      });
-  }
-
-  upload(req, res) {
     BabyChainService
       .postdelete(req, res)
       .then(r => {

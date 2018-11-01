@@ -7,6 +7,8 @@ const fileUpload = require('express-fileupload');
 //20181027 sally multer test
 const multer = require('multer');
 const fs = require('fs');
+//20181101 sally sha256 crypto module add
+const crypto = require('crypto')
 
 
 var storage = multer.diskStorage({
@@ -70,88 +72,65 @@ class BabyChainService {
     return Promise.resolve(fbClient.queryChaincode('babychain', 'query', args, []));
   }
 
-  uploadImageJSEncoding(req,res){
-    l.info('upload image test');
-    l.info(`${this.constructor.name}.byId(${req})`);
-    //20181019 sally file information
-    l.info(req.files.upfile);
-    l.info(req.files.upfile.originalname);
-    //20181019 sally text value
-     l.info(req.body.value);
-    //test2. base64 enocoding test
-    var data = fs.readFileSync(req.files.upfile.path);
-    var base64Image = new Buffer(data.toString(),'base64');
-    const args = [];
-    args.push(req.files.upfile.originalname);
-    args.push(req.body.value);
-    //20181023 sally base64 ecndoing buffer
-    args.push(base64Image);
+    // 20181101 sally upload image to text
+    uploadImageToText(req, res) {
+      l.info('upload image to text');
+      l.info(`${this.constructor.name}.byId(${req})`);
+      l.info(req.files.upfile);             //file info
+      l.info(req.body.value);               //input text value
+      var data = fs.readFileSync(req.files.upfile.path, 'base64');
+      //l.info("image file base64 encoding : "+data);
+      var sha256String = crypto.createHash('sha256').update(data).digest('utf-8')
+      l.info("key encrypted string : "+sha256String); 
+      const args = [];
+
+      args.push(sha256String);    //key image 
+      args.push(req.body.value);  //value text string
+        
+      return Promise.resolve(fbClient.invokeChaincode('babychain', 'register', args, []));
+    
+    }
   
-    return Promise.resolve(fbClient.invokeChaincode('babychain', 'uploadImage', args, []));
+   // 20181101 sally upload image to text 
+    readImageToText(req, res) {
+      l.info('readImage test');
+      l.info(req.files.upfile);             //file info
+      var data = fs.readFileSync(req.files.upfile.path, 'base64');
+      //l.info("image file base64 encoding : "+data);   
+      var sha256String = crypto.createHash('sha256').update(data).digest('utf-8')
+      l.info("key encrypted string : "+sha256String); 
+      const args = [];
+      args.push(sha256String);
+      
+      return Promise.resolve(fbClient.queryChaincode('babychain', 'query', args, []));
+    }
+
+    modifyImageToText(req, res) {
+      l.info('modifyImageToText test');
+      l.info(`${this.constructor.name}.byId(${req})`);
+      l.info(req.files.upfile);             //file info
+      l.info(req.body.value);               //input text value
+      var data = fs.readFileSync(req.files.upfile.path, 'base64');;
+      var sha256String = crypto.createHash('sha256').update(data).digest('utf-8')
+      l.info("key encrypted string : "+sha256String); 
+      const args = [];
+
+      args.push(sha256String);    //key image 
+      args.push(req.body.value);  //value text string
   
-  }
-
-  readImageJSDecoding(req, res) {
-    l.info('readImage test');
-    l.info('key = '+ req.params.key);
-    const args = [];
-    args.push(req.params.key);
-    Promise.resolve(fbClient.queryChaincode('babychain', 'query', args, []))
-    .then(result=>{
-
-      l.info('----------result[0].peer_payloads--------');
-      l.info(result[0].peer_payloads);
-      var stringImage = new Buffer(result[0].peer_payloads,'base64').toString('ascii')
-      l.info('stringImage = '+stringImage.toString());
-      //20181030 sally
-      //to do - base64 encoding 했던 것을 decode하고 image file로 보여주는것 까지 구현해야함.. 
-      //구현한 것을 return result에 setting하는 것도 필요함.
-    });
-    return Promise.resolve(fbClient.queryChaincode('babychain', 'query', args, []));
-  }
-
-  uploadImageCCEncoding(req,res){
-    l.info('upload image test');
-    l.info(`${this.constructor.name}.byId(${req})`);
-    l.info(req.files.upfile);
-    l.info(req.files.upfile.originalname);
-    //20181019 sally text value
-    l.info(req.body.value);
-    //just read data -> to string
-    var data = fs.readFileSync(req.files.upfile.path);
-    var stringImage = data.toString();
-    const args = [];
-    args.push(req.files.upfile.originalname);
-    args.push(req.body.value);
-    //20181023 sally just image to string
-    args.push(stringImage);
-    return Promise.resolve(fbClient.invokeChaincode('babychain', 'uploadImageCCEncoding', args, []));
+      return Promise.resolve(fbClient.invokeChaincode('babychain', 'modify', args, []));
+    }
   
-  }
-
-
-  readImageCCDecoding(req, res) {
-    l.info('readImage test');
-    const args = [];
-    args.push(req.params.key);
-    l.info("11111111111111111111111111111111111111111111111111111111111111111");
-    Promise.resolve(fbClient.queryChaincode('babychain', 'readImage', args, []))
-    .then(result=>{
-      //l.info('----------promise--------');
-      //l.info(result);
-      //l.info('----------result[0]--------');
-      //l.info(result[0]);
-      l.info('----------result[0].peer_payloads--------');
-      l.info(result[0].peer_payloads);      
-      //20181030 sally
-      //to do - 결과 string을  image file로 보여주는것 까지 구현해야함.(decoding은 완료된 string임.)
-      //구현한 것을 return result에 setting하는 것도 필요함.
-    });
-
-    return Promise.resolve(fbClient.queryChaincode('babychain', 'readImageCCDecoding', args, []));
-
-  }
-
+    deleteImageToText(req, res) {
+      l.info('deleteImageToText test');
+      l.info(req.files.upfile);             //file info
+      var data = fs.readFileSync(req.files.upfile.path, 'base64');  
+      var sha256String = crypto.createHash('sha256').update(data).digest('utf-8')
+      l.info("key encrypted string : "+sha256String); 
+      const args = [];
+      args.push(sha256String);
+      return Promise.resolve(fbClient.invokeChaincode('babychain', 'delete', args, []));
+    }
 
   getBaby(req, res) {
     l.info('getbaby test');

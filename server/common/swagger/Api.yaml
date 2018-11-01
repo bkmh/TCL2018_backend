@@ -246,85 +246,7 @@ paths:
         200:
           description: Delete User's Current Value
 
-  /babychain/uploadImageJSEncoding:
-    post:
-      tags:
-      - Babychain
-      consumes:
-        - multipart/form-data
-      parameters:
-        - in: formData
-          name: upfile
-          type: file
-          required: true
-          description: The key image of the image asset 
-        - in: formData
-          name: value
-          type: string
-          required: true
-          description: The value of the image asset 
-      produces:
-        - text/plain
-      responses:
-        '200':
-          description: OK
-          schema:
-            type: string
-            example: "File upload successful"
 
-  /babychain/readImageJSDecoding/{key}:
-    get:
-      tags:
-      - Babychain
-      parameters:
-        - in: path
-          name: key
-          type: string
-          required: true
-          description: The key string of the image asset 
-      responses:
-        200:
-          description: Get image successful
-
-  /babychain/uploadImageCCEncoding:
-    post:
-      tags:
-      - Babychain
-      consumes:
-        - multipart/form-data
-      parameters:
-        - in: formData
-          name: upfile
-          type: file
-          required: true
-          description: The key image of the image asset 
-        - in: formData
-          name: value
-          type: string
-          required: true
-          description: The value of the image asset 
-      produces:
-        - text/plain
-      responses:
-        '200':
-          description: OK
-          schema:
-            type: string
-            example: "File upload successful"
-
-  /babychain/readImageCCDecoding/{key}:
-    get:
-      tags:
-      - Babychain
-      parameters:
-        - in: path
-          name: key
-          type: string
-          required: true
-          description: The key string of the image asset 
-      responses:
-        200:
-          description: Get image successful
   /babychain/uploadImage:
     post:
       tags:
@@ -363,7 +285,96 @@ paths:
           description: The key string of the image asset 
       responses:
         200:
-          description: Get image successful    
+          description: Get image successful   
+
+  /babychain/uploadImageToText:
+    post:
+      tags:
+      - Babychain
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          required: true
+          description: The key image of the image asset 
+        - in: formData
+          name: value
+          type: string
+          required: true
+          description: The value of the image asset 
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+            example: "File upload successful"
+
+  /babychain/readImageToText:
+    post:
+      tags:
+      - Babychain
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          required: true
+          description: The key image of the image asset 
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+            example: "File upload successful" 
+
+  /babychain/modifyImageToText:
+    post:
+      tags:
+      - Babychain
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          required: true
+          description: The key image of the asset 
+        - in: formData
+          name: value
+          type: string
+          required: true
+          description: The value user want to change
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+            example: "value modify successful"
+
+  /babychain/deleteImageToText:
+    post:
+      tags:
+      - Babychain
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          required: true
+          description: The key image of the asset 
+      responses:
+        200:
+          description: Delete User's Current Value
 
   /spec:
     get:
