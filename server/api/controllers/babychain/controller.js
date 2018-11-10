@@ -72,16 +72,6 @@ export class Controller {
       });
   }
 
-  // 20181110 sally read image and values
-  readImageAndValues(req, res) {
-    BabyChainService
-      .readImageAndValues(req, res)
-      .then(r => {
-        if (r) res.json(r);
-        else res.status(404).end();
-      });
-  }
-
 
   getBaby(req, res) {
     BabyChainService

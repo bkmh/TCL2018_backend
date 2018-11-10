@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
@@ -26,6 +27,15 @@ var logger = shim.NewLogger("BabyChain example_cc!!!!!!!!")
 
 // SimpleChaincode example simple Chaincode implementation
 type SimpleChaincode struct {
+}
+
+type Baby struct {
+	ObjectType  string `json:"docType"`     //field for couchdb
+	Id          string `json:"id"`
+	ContactNum  string `json:"phoneNum"`
+	BabyName    string `json:"babyName"`
+	ParentsName string `json:"parentsName"`
+	Enabled     bool   `json:"enabled"`     //disabled owners will not be visible to the application
 }
 
 // Init - initialize the state
@@ -268,7 +278,7 @@ func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string
 
 	return shim.Success(nil)
 }
-
+/*
 func (t *SimpleChaincode) registerMultiValues(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// must be an invoke
 	var key string   // User key
@@ -306,7 +316,52 @@ func (t *SimpleChaincode) registerMultiValues(stub shim.ChaincodeStubInterface, 
 
 	return shim.Success([]byte("register succeed!!!"))
 }
+*/
 
+func (t *SimpleChaincode) registerMultiValues(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	// must be an invoke
+	var key string   // User key
+	var value1 string //
+	var value2 string //
+	var value3 string //
+	var err error
+
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 2, function followed by 1 name and 1 value")
+	}
+
+	key = args[0]
+	value1 = args[1]
+	value2 = args[2]
+	value3 = args[3]
+    //실종시 또는 사전 등록시 등록되는 원장
+	var baby Baby
+	baby.ObjectType = "baby_info"
+	baby.Id =  key   // 우선 image key값을 id로 함.. 이게 맞나..?
+	baby.ContactNum = value1 
+	baby.BabyName = value2
+	baby.ParentsName = value3
+	baby.Enabled = true
+	logger.Info("########### baby ###########",baby)
+
+	//check if user already exists
+	//_, err =stub.GetState(key)
+	//if err == nil {
+	//	fmt.Println("This owner already exists - " + owner.Id)
+	//	return shim.Error("This owner already exists - " + owner.Id)
+	//}
+
+	//store user
+	babyAsBytes, _ := json.Marshal(baby)                         //convert to array of bytes
+	err = stub.PutState(baby.Id, babyAsBytes)                    //store owner by its Id
+	if err != nil {
+		logger.Info("Could not register baby")
+		return shim.Error(err.Error())
+	}
+
+	logger.Info("- end register baby info")
+	return shim.Success([]byte("register succeed!!!"))
+}
 
 func main() {
 	err := shim.Start(new(SimpleChaincode))
