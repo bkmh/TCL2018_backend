@@ -19,5 +19,7 @@ export default express
   .post('/uploadImageToText',controller.uploadImageToText)
   .post('/readImageToText',controller.readImageToText)
   .post('/modifyImageToText',controller.modifyImageToText)
-  .post('/deleteImageToText',controller.deleteImageToText);
+  .post('/deleteImageToText',controller.deleteImageToText)
+  .post('/uploadImageAndValues',controller.uploadImageAndValues)
+  ;
 

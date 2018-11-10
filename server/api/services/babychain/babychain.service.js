@@ -262,6 +262,36 @@ class BabyChainService {
     return Promise.resolve(fbClient.invokeChaincode('babychain', 'delete', args, []));
   }
 
+    // 20181110 sally upload image to text
+    uploadImageAndValues(req, res) {
+    
+      l.info('upload image and values');
+      l.info(`${this.constructor.name}.byId(${req})`);
+      l.info(req.files.upfile);             //file info
+      l.info(req.body.value1);               //input text value
+      l.info(req.body.value2);
+      l.info(req.body.value3);    
+      var streamData = fs.readFileSync(req.files.upfile.path, 'base64');
+      const sha256String = crypto.createHash('sha256').update(streamData).digest('hex');
+      const uft8Sha256String = crypto.createHash('sha256').update(streamData).digest('utf8');
+  
+      l.info('key_encrypted_string : %s', sha256String);
+      l.info('key_encrypted_utf8_string : %s', uft8Sha256String);
+  
+      //const extension = path.extname(req.files.upfile.originalname);
+      //const newFilePath = path.join(__dirname, '/uploads/', sha256String.concat(extension));
+      //l.info('newFilePath : %s', newFilePath);
+      //fs.writeFileSync(newFilePath, streamData, 'base64', 'w');
+  
+      const args = [];  
+      args.push(sha256String);    //key image 
+      args.push(req.body.value1);  //value text string
+      args.push(req.body.value2); 
+      args.push(req.body.value3); 
+        
+      return Promise.resolve(fbClient.invokeChaincode('babychain', 'registerMultiValues', args, []));
+    
+    }
 
 }
 

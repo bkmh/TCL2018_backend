@@ -101,6 +101,10 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.readImage(stub, args)
 	}
 
+	if function == "registerMultiValues" {
+		return t.registerMultiValues(stub, args)
+	}
+
 	logger.Errorf("Unknown action, check the first argument, must be one of 'register', 'delete', 'query', or 'modify'. But got: %v", args[0])
 	return shim.Error(fmt.Sprintf("Unknown action, check the first argument, must be one of 'delete', 'query', or 'move'. But got: %v", args[0]))
 }
@@ -264,6 +268,45 @@ func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string
 
 	return shim.Success(nil)
 }
+
+func (t *SimpleChaincode) registerMultiValues(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	// must be an invoke
+	var key string   // User key
+	var value1 string //
+	var value2 string //
+	var value3 string //
+	var err error
+
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 2, function followed by 1 name and 1 value")
+	}
+
+	key = args[0]
+	value1 = args[1]
+	value2 = args[2]
+	value3 = args[3]
+
+	str := `{
+		"PhoneNumber": "` + value1 + `", 
+		"BabyName": ` + value2 + `, 
+		"ParentsName": ` + value3 + ` 
+	}`
+	logger.Info("########### str ###########"+str)
+
+	Avalbytes, err := stub.GetState(key)
+	if Avalbytes != nil {
+		jsonResp := "{\"Error\":\"This key already Exists!! Failed to regist for " + key + "\"}"
+		return shim.Error(jsonResp)
+	}
+	// Write the state to the ledger
+	err = stub.PutState(key, []byte(str))
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	return shim.Success([]byte("register succeed!!!"))
+}
+
 
 func main() {
 	err := shim.Start(new(SimpleChaincode))
