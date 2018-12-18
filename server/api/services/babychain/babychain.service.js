@@ -158,7 +158,7 @@ class BabyChainService {
 
     l.info('newFilePath : %s', newFilePath);
 
-    fs.writeFileSync(newFilePath, streamData, 'base64', 'w');
+    fs.writeFileSync(newFilePath, streamData, 'base64', 'w+');
 
     const args = [];
 
@@ -226,11 +226,19 @@ class BabyChainService {
     // 2018.11.03 BKMH - 현재 저장폴더가 결정되지 않았으므로, 현재파일의 경로와 동일경로에 /uploads/를 생성하고
     // 해당 위치에 digest('hex') + 기존 파일의 확장자로 파일 생성
     // 2018.12.15 BKMH - 차후, FLAG에 따라, 저장되는 경로 변경할 것.
-    const newFilePath = path.join(__dirname, '/uploadRegistered/', sha256String.concat(extension));
+    // 파일이 아니라 폴더가 존재하지 않는 경우, 오류가 발생하므로 폴더를 생성하는 로직이 필요함.
+
+    const strDestination = path.join(__dirname, '/uploadRegistered/');
+
+    if (!fs.existsSync(strDestination)) {
+      fs.mkdirSync(strDestination);
+    }
+
+    const newFilePath = path.join(strDestination, sha256String.concat(extension));
 
     l.info('newFilePath : %s', newFilePath);
 
-    fs.writeFileSync(newFilePath, streamData, 'base64', 'w');
+    fs.writeFileSync(newFilePath, streamData, 'base64', 'w+');
 
     const args = [];
 
@@ -301,11 +309,18 @@ class BabyChainService {
     // 2018.11.03 BKMH - 현재 저장폴더가 결정되지 않았으므로, 현재파일의 경로와 동일경로에 /uploads/를 생성하고
     // 해당 위치에 digest('hex') + 기존 파일의 확장자로 파일 생성
     // 2018.12.15 BKMH - 차후, FLAG에 따라, 저장되는 경로 변경할 것.
-    const newFilePath = path.join(__dirname, '/uploadMissing/', sha256String.concat(extension));
+
+    const strDestination = path.join(__dirname, '/uploadMissing/');
+
+    if (!fs.existsSync(strDestination)) {
+      fs.mkdirSync(strDestination);
+    }
+
+    const newFilePath = path.join(strDestination, sha256String.concat(extension));
 
     l.info('newFilePath : %s', newFilePath);
 
-    fs.writeFileSync(newFilePath, streamData, 'base64', 'w');
+    fs.writeFileSync(newFilePath, streamData, 'base64', 'w+');
 
     const args = [];
 
@@ -375,12 +390,19 @@ class BabyChainService {
 
     // 2018.11.03 BKMH - 현재 저장폴더가 결정되지 않았으므로, 현재파일의 경로와 동일경로에 /uploads/를 생성하고
     // 해당 위치에 digest('hex') + 기존 파일의 확장자로 파일 생성
-    // 2018.12.15 BKMH - 차후, FLAG에 따라, 저장되는 경로 변경할 것.
-    const newFilePath = path.join(__dirname, '/uploadProtected/', sha256String.concat(extension));
+    // 2018.12.15 BKMH - 차후, FLAG에 따라, 저장되는 경로 변경할 것
+    
+    const strDestination = path.join(__dirname, '/uploadProtected/');
+
+    if (!fs.existsSync(strDestination)) {
+      fs.mkdirSync(strDestination);
+    }
+    
+    const newFilePath = path.join(strDestination, sha256String.concat(extension));
 
     l.info('newFilePath : %s', newFilePath);
 
-    fs.writeFileSync(newFilePath, streamData, 'base64', 'w');
+    fs.writeFileSync(newFilePath, streamData, 'base64', 'w+');
 
     const args = [];
 

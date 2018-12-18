@@ -22,12 +22,12 @@ export default express
   .post('/deleteImageToText', controller.deleteImageToText)
   .post('/uploadImageAndValues', controller.uploadImageAndValues)
   .post('/readImageAndValues', controller.readImageAndValues)
-  .post('/uploadImageAndValuesForRegistered', controller.uploadImageAndValues)
-  .post('/readImageAndValuesForRegistered', controller.readImageAndValues)
-  .post('/uploadImageAndValuesForMissing', controller.uploadImageAndValues)
-  .post('/readImageAndValuesForMissing', controller.readImageAndValues)
-  .post('/uploadImageAndValuesForProtected', controller.uploadImageAndValues)
-  .post('/readImageAndValuesForProtected', controller.readImageAndValues)
+  .post('/uploadImageAndValuesForRegistered', controller.uploadImageAndValuesForRegistered)
+  .post('/readImageAndValuesForRegistered', controller.readImageAndValuesForRegistered)
+  .post('/uploadImageAndValuesForMissing', controller.uploadImageAndValuesForMissing)
+  .post('/readImageAndValuesForMissing', controller.readImageAndValuesForMissing)
+  .post('/uploadImageAndValuesForProtected', controller.uploadImageAndValuesForProtected)
+  .post('/readImageAndValuesForProtected', controller.readImageAndValuesForProtected)
    
   ;
 
