@@ -2,6 +2,7 @@ node_modules
 build
 #.env
 .idea
+.exe
 configuration/*
 chaincodes/hyperledger
 tools/network/0.local/docker/*
