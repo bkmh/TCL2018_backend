@@ -88,7 +88,7 @@ export class Controller {
   // 20181214 BKMH Upload image and values(add flag)
   uploadImageAndValuesForRegistered(req, res) {
     BabyChainService
-      .uploadImageAndValues(req, res)
+      .uploadImageAndValuesForRegistered(req, res)
       .then(r => {
         if (r) res.json(r);
         else res.status(404).end();
@@ -99,7 +99,7 @@ export class Controller {
   // 20181214 BKMH Upload image and values(add flag)
   readImageAndValuesForRegistered(req, res) {
     BabyChainService
-      .readImageAndValues(req, res)
+      .readImageAndValuesForRegistered(req, res)
       .then(r => {
         if (r) res.json(r);
         else res.status(404).end();
@@ -110,7 +110,7 @@ export class Controller {
   // 20181214 BKMH Upload image and values(add flag)
   uploadImageAndValuesForProtected(req, res) {
     BabyChainService
-      .uploadImageAndValues(req, res)
+      .uploadImageAndValuesForProtected(req, res)
       .then(r => {
         if (r) res.json(r);
         else res.status(404).end();
@@ -121,7 +121,7 @@ export class Controller {
   // 20181214 BKMH Upload image and values(add flag)
   readImageAndValuesForProtected(req, res) {
     BabyChainService
-      .readImageAndValues(req, res)
+      .readImageAndValuesforProtected(req, res)
       .then(r => {
         if (r) res.json(r);
         else res.status(404).end();
@@ -132,7 +132,7 @@ export class Controller {
   // 20181214 BKMH Upload image and values(add flag)
   uploadImageAndValuesForMissing(req, res) {
     BabyChainService
-      .uploadImageAndValues(req, res)
+      .uploadImageAndValuesForMissing(req, res)
       .then(r => {
         if (r) res.json(r);
         else res.status(404).end();
@@ -143,7 +143,7 @@ export class Controller {
   // 20181214 BKMH Upload image and values(add flag)
   readImageAndValuesForMissing(req, res) {
     BabyChainService
-      .readImageAndValues(req, res)
+      .readImageAndValuesForMissing(req, res)
       .then(r => {
         if (r) res.json(r);
         else res.status(404).end();
