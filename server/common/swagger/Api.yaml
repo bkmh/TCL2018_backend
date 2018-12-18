@@ -375,6 +375,7 @@ paths:
       responses:
         200:
           description: Delete User's Current Value
+          
   /babychain/uploadImageAndValues:
     post:
       tags:
@@ -388,20 +389,15 @@ paths:
           required: true
           description: The key image of the image asset 
         - in: formData
-          name: value1
+          name: strcontectnumber
           type: string
           required: true
-          description: The contact number(ex.HP) 
+          description: The contact number(ex.HP)
         - in: formData
-          name: value2
+          name: strdetailinfo
           type: string
           required: true
-          description: The babyName
-        - in: formData
-          name: value3
-          type: string
-          required: true
-          description: The parentsName
+          description: Detail Information for baby
       produces:
         - text/plain
       responses:
@@ -410,8 +406,183 @@ paths:
           schema:
             type: string
             example: "File upload successful"
+            
+  /babychain/readImageAndValues:
+    post:
+      tags:
+      - Babychain
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          required: true
+          description: The key image of the image asset 
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+            example: "File upload successful" 
 
+  /babychain/uploadImageAndValuesForRegistered:
+    post:
+      tags:
+      - Babychain
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          required: true
+          description: The key image of the image asset 
+        - in: formData
+          name: strcontectnumber
+          type: string
+          required: true
+          description: The contact number(ex.HP)
+        - in: formData
+          name: strdetailinfo
+          type: string
+          required: true
+          description: Detail Information for baby
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+            example: "File upload successful"
+            
+  /babychain/readImageAndValuesForRegistered:
+    post:
+      tags:
+      - Babychain
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          required: true
+          description: The key image of the image asset 
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+            example: "File upload successful" 
 
+  /babychain/uploadImageAndValuesForProtected:
+    post:
+      tags:
+      - Babychain
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          required: true
+          description: The key image of the image asset 
+        - in: formData
+          name: strcontectnumber
+          type: string
+          required: true
+          description: The contact number(ex.HP)
+        - in: formData
+          name: strdetailinfo
+          type: string
+          required: true
+          description: Detail Information for baby
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+            example: "File upload successful"
+            
+  /babychain/readImageAndValuesForProtected:
+    post:
+      tags:
+      - Babychain
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          required: true
+          description: The key image of the image asset 
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+            example: "File upload successful" 
+
+  /babychain/uploadImageAndValuesForMissing:
+    post:
+      tags:
+      - Babychain
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          required: true
+          description: The key image of the image asset 
+        - in: formData
+          name: strcontectnumber
+          type: string
+          required: true
+          description: The contact number(ex.HP)
+        - in: formData
+          name: strdetailinfo
+          type: string
+          required: true
+          description: Detail Information for baby
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+            example: "File upload successful"
+            
+  /babychain/readImageAndValuesForMissing:
+    post:
+      tags:
+      - Babychain
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          required: true
+          description: The key image of the image asset 
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+            example: "File upload successful" 
   /spec:
     get:
       tags:

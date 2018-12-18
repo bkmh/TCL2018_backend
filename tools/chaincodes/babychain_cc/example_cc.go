@@ -19,6 +19,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
 )
@@ -30,15 +31,16 @@ type SimpleChaincode struct {
 }
 
 type Baby struct {
-	ObjectType  string `json:"docType"`     //field for couchdb
-	Id          string `json:"id"`
-	ContactNum  string `json:"phoneNum"`
-	BabyName    string `json:"babyName"`
-	ParentsName string `json:"parentsName"`
-	Enabled     bool   `json:"enabled"`     //disabled owners will not be visible to the application
+	ObjectType     string `json:"docType"` // field for couchdb
+	Id             string `json:"id"`
+	ContactNum     string `json:"contactNum"`
+	DetailContents string `json:"detailContents"`
+	RegFlag        string `json:"dataFlag"`
+	Enabled        bool   `json:"enabled"` // disabled owners will not be visible to the application
 }
 
 // Init - initialize the state
+// 2018.12.15 BKMH - 차후 Init  처리 변경
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	logger.Info("########### Babychain example_cc Init!!!!!!!!!!! ###########")
 
@@ -119,8 +121,6 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	return shim.Error(fmt.Sprintf("Unknown action, check the first argument, must be one of 'delete', 'query', or 'move'. But got: %v", args[0]))
 }
 
-
-
 // 20181023 sally upload images with string key
 func (t *SimpleChaincode) uploadImage(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	logger.Info("########### Babychain uploadImageJSEncoding ###########")
@@ -169,7 +169,6 @@ func (t *SimpleChaincode) readImage(stub shim.ChaincodeStubInterface, args []str
 	// 20181030 BKMH 기존 로직과 동일하게 encoding 없이 query 수행
 	return shim.Success(Avalbytes)
 }
-
 
 func (t *SimpleChaincode) register(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// must be an invoke
@@ -278,6 +277,7 @@ func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string
 
 	return shim.Success(nil)
 }
+
 /*
 func (t *SimpleChaincode) registerMultiValues(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// must be an invoke
@@ -297,9 +297,9 @@ func (t *SimpleChaincode) registerMultiValues(stub shim.ChaincodeStubInterface, 
 	value3 = args[3]
 
 	str := `{
-		"PhoneNumber": "` + value1 + `", 
-		"BabyName": ` + value2 + `, 
-		"ParentsName": ` + value3 + ` 
+		"PhoneNumber": "` + value1 + `",
+		"BabyName": ` + value2 + `,
+		"ParentsName": ` + value3 + `
 	}`
 	logger.Info("########### str ###########"+str)
 
@@ -318,31 +318,40 @@ func (t *SimpleChaincode) registerMultiValues(stub shim.ChaincodeStubInterface, 
 }
 */
 
+// 20181218 - BKMH Register for pre-Registered, Protected, Missing
 func (t *SimpleChaincode) registerMultiValues(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// must be an invoke
-	var key string   // User key
-	var value1 string //
-	var value2 string //
-	var value3 string //
+	var strKey string           // User key - made by Image name to sha256 String
+	var strContectNumber string //Input Contact Number
+	var strDetailInfo string    // Input Detail Info
+	var strRegisterFlag string  // Input Data Flag
+	//var value3 string //
 	var err error
 
 	if len(args) != 4 {
-		return shim.Error("Incorrect number of arguments. Expecting 2, function followed by 1 name and 1 value")
+		return shim.Error("Incorrect number of arguments. Expecting 4, function followed by 1 name and 1 value")
 	}
 
-	key = args[0]
-	value1 = args[1]
-	value2 = args[2]
-	value3 = args[3]
-    //실종시 또는 사전 등록시 등록되는 원장
+	strKey = args[0]
+	strContectNumber = args[1]
+	strDetailInfo = args[2]
+	strRegisterFlag = args[3]
+	//value3 = args[3]
+
+	// 입력되는 Flag가 없는 경우, 일단 사전등록(R)로 입력
+	if len(strRegisterFlag) == 0 {
+		strRegisterFlag = "R"
+	}
+
+	//실종시 또는 사전 등록시 등록되는 원장
 	var baby Baby
 	baby.ObjectType = "baby_info"
-	baby.Id =  key   // 우선 image key값을 id로 함.. 이게 맞나..?
-	baby.ContactNum = value1 
-	baby.BabyName = value2
-	baby.ParentsName = value3
+	baby.Id = strKey // 우선 image key값을 id로 함.. 이게 맞나..?
+	baby.ContactNum = strContectNumber
+	baby.DetailContents = strDetailInfo
+	baby.RegFlag = strRegisterFlag
 	baby.Enabled = true
-	logger.Info("########### baby ###########",baby)
+	logger.Info("########### baby ###########", baby)
 
 	//check if user already exists
 	//_, err =stub.GetState(key)
@@ -352,8 +361,9 @@ func (t *SimpleChaincode) registerMultiValues(stub shim.ChaincodeStubInterface, 
 	//}
 
 	//store user
-	babyAsBytes, _ := json.Marshal(baby)                         //convert to array of bytes
-	err = stub.PutState(baby.Id, babyAsBytes)                    //store owner by its Id
+	babyAsBytes, _ := json.Marshal(baby)      //convert to array of bytes
+	err = stub.PutState(baby.Id, babyAsBytes) //store owner by its Id
+
 	if err != nil {
 		logger.Info("Could not register baby")
 		return shim.Error(err.Error())
@@ -361,6 +371,37 @@ func (t *SimpleChaincode) registerMultiValues(stub shim.ChaincodeStubInterface, 
 
 	logger.Info("- end register baby info")
 	return shim.Success([]byte("register succeed!!!"))
+}
+
+// 20181215 BKMH - read for couchDB
+func (t *SimpleChaincode) readMultiValues(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	logger.Info("########### Babychain readMultiValues ###########")
+	var key string
+	var err error
+
+	key = args[0]
+	logger.Info("key : " + key)
+	queryResult, err := stub.GetState(key)
+	// 차후 dataFlag를 기준으로 조회할 수 있도록 처리 필요함(couchDB INDEX 관련 내용 확인)
+
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for " + key + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	if queryResult == nil {
+		jsonResp := "{\"Error\":\"Nil amount for " + key + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	logger.Infof("Query Raw Data : %s\n", queryResult)
+
+	// 20181215 BKMH - 해당 부분에 대해서 실제 query 결과를 어떻게 조립할 것인지 판단 필요
+	jsonResp := "{\"key\":\"" + key + "\",\"value\":\"" + string(queryResult) + "\"}"
+	logger.Infof("Query Response:%s\n", jsonResp)
+
+	// 20181030 BKMH 기존 로직과 동일하게 encoding 없이 query 수행
+	return shim.Success(queryResult)
 }
 
 func main() {

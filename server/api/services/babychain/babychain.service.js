@@ -1,34 +1,34 @@
 import l from '../../../common/logger';
 
-const fbClient = require('../../../blockchain/bc-client');
 const path = require('path');
 
 
 const fileUpload = require('express-fileupload');
-//20181027 sally multer test
+// 20181027 sally multer test
 const multer = require('multer');
 const fs = require('fs');
-//20181101 sally sha256 crypto module add
+// 20181101 sally sha256 crypto module add
 const crypto = require('crypto');
+const fbClient = require('../../../blockchain/bc-client');
 
 const storage = multer.diskStorage({
-  destination: function(req, file ,callback) {
-    callback(null, "uploads/")
+  destination(req, file, callback) {
+    callback(null, 'uploads/');
   },
-  filename: function(req, userFileName, callback) {
+  filename(req, userFileName, callback) {
     if (userFileName == null) {
-      callback(null, file.originalname + " - " + Date.now())
+      callback(null, `${file.originalname} - ${Date.now()}`);
     } else {
-      callback(null, userFileName)
+      callback(null, userFileName);
     }
-  }
-});
- 
-let upload = multer({
-  storage : storage
+  },
 });
 
-//const storage = multer.diskStorage({
+const upload = multer({
+  storage,
+});
+
+// const storage = multer.diskStorage({
 //  destination: function(req, files, cb) {
 //    l.info('111111');
 //    l.info(files);
@@ -40,7 +40,7 @@ let upload = multer({
 //     cb(null, new Date().toISOString() + files.originalname); //파일이름 설정
 //   }
 // });
-//const upload = multer({storage: storage});
+// const upload = multer({storage: storage});
 
 
 class BabyChainService {
@@ -52,39 +52,37 @@ class BabyChainService {
     l.info(req.files.upfile);
     l.info(req.files.upfile.originalname);
     // 20181019 sally text value
-     l.info(req.body.value);
+    l.info(req.body.value);
     // 20181030 BKMH readFile를 이용하여 Buffer를 encoding= base64 로 생성
-    var data = fs.readFileSync(req.files.upfile.path, 'base64');
+    const data = fs.readFileSync(req.files.upfile.path, 'base64');
     // var base64Image = new Buffer(data.toString(),'base64');
     const args = [];
     args.push(req.files.upfile.originalname);
     args.push(req.body.value);
     // 20181023 sally base64 ecndoing buffer
     args.push(data);
-  
+
     return Promise.resolve(fbClient.invokeChaincode('babychain', 'uploadImage', args, []));
-  
   }
 
-  // 20181030 BKMH 기존 uploadImage 복원 
+  // 20181030 BKMH 기존 uploadImage 복원
   readImage(req, res) {
     l.info('readImage test');
-    l.info('key = '+ req.params.key);
+    l.info(`key = ${req.params.key}`);
     const args = [];
     args.push(req.params.key);
-    
+
     return Promise.resolve(fbClient.queryChaincode('babychain', 'query', args, []));
   }
 
   // 20181101 sally upload image to text
   uploadImageToText(req, res) {
-    
     l.info('upload image to text');
     l.info(`${this.constructor.name}.byId(${req})`);
-    l.info(req.files.upfile);             //file info
-    l.info(req.body.value);               //input text value
-    var streamData = fs.readFileSync(req.files.upfile.path, 'base64');
-    //l.info("image file base64 encoding : "+data);
+    l.info(req.files.upfile); // file info
+    l.info(req.body.value); // input text value
+    const streamData = fs.readFileSync(req.files.upfile.path, 'base64');
+    // l.info("image file base64 encoding : "+data);
 
     // multer 를 이용한 파일업로드 테스트
     // upload.single(req.files.upfile, 'testImage');
@@ -104,7 +102,7 @@ class BabyChainService {
     // const basename = path.basename(req.file.upfile.originalname, extension);
 
     // const newFilePath = path.join('/uploads/', sha256String.concat(extension));
-    
+
     // const newFilePath = path.join(__dirname, '/uploads/', uft8Sha256String.concat(extension));
 
     // 2018.11.03 BKMH - 현재 저장폴더가 결정되지 않았으므로, 현재파일의 경로와 동일경로에 /uploads/를 생성하고
@@ -117,26 +115,68 @@ class BabyChainService {
 
     const args = [];
 
-    args.push(sha256String);    //key image 
-    args.push(req.body.value);  //value text string
-      
+    args.push(sha256String); // key image
+    args.push(req.body.value); // value text string
+
     return Promise.resolve(fbClient.invokeChaincode('babychain', 'register', args, []));
-  
   }
 
-  // 20181104 BKMH - 차후 사용 opencv 연동
-  compareToImage(req, res) {
+  // 20181214 BKMH Upload Image and Values(add flag)
+  uploadImageAndValues(req) {
+    l.info('upload image to text');
+    l.info(`${this.constructor.name}.byId(${req})`);
+    l.info(req.files.upfile); // file info
+    l.info(req.body.value); // input text value
+    const streamData = fs.readFileSync(req.files.upfile.path, 'base64');
+    // l.info("image file base64 encoding : "+data);
 
+    // multer 를 이용한 파일업로드 테스트
+    // upload.single(req.files.upfile, 'testImage');
 
+    // BKMH Upload 된 파일을 기준으로 CouchDB 적재
+
+    // 2018.11.03 BKMH - https://nodejs.org/api/crypto.html 기준으로 sha256 데이터에 대해 hex값 변환
+    const sha256String = crypto.createHash('sha256').update(streamData).digest('hex');
+    // 2018.11.03 BKMH - digest('utf-8') -> utf8로 변환
+    // 2018.11.03 BKMH - 실제 출력할 수 있는 문자열로 변환되지 않음.
+    const uft8Sha256String = crypto.createHash('sha256').update(streamData).digest('utf8');
+
+    l.info('key_encrypted_string : %s', sha256String);
+    l.info('key_encrypted_utf8_string : %s', uft8Sha256String);
+
+    const extension = path.extname(req.files.upfile.originalname);
+    // const basename = path.basename(req.file.upfile.originalname, extension);
+
+    // const newFilePath = path.join('/uploads/', sha256String.concat(extension));
+
+    // const newFilePath = path.join(__dirname, '/uploads/', uft8Sha256String.concat(extension));
+
+    // 2018.11.03 BKMH - 현재 저장폴더가 결정되지 않았으므로, 현재파일의 경로와 동일경로에 /uploads/를 생성하고
+    // 해당 위치에 digest('hex') + 기존 파일의 확장자로 파일 생성
+    // 2018.12.15 BKMH - 차후, FLAG에 따라, 저장되는 경로 변경할 것.
+    const newFilePath = path.join(__dirname, '/uploads/', sha256String.concat(extension));
+
+    l.info('newFilePath : %s', newFilePath);
+
+    fs.writeFileSync(newFilePath, streamData, 'base64', 'w');
+
+    const args = [];
+
+    args.push(sha256String); // key image
+    args.push(req.body.strcontectnumber); // contectNumber String
+    args.push(req.body.strdetailinfo); // detail infomation for baby
+    args.push('R'); // for registerFlag
+
+    // return Promise.resolve(fbClient.invokeChaincode('babychain', 'register', args, []));
+    return Promise.resolve(fbClient.invokeChaincode('babychain', 'registerMultiValues', args, []));
   }
 
-
-  // 20181101 sally upload image to text 
-  readImageToText(req, res) {
+// 20181215 BKMH read Image and Values
+  readImageAndValues(req) {
     l.info('readImage test');
-    l.info(req.files.upfile);             //file info
-    var streamData = fs.readFileSync(req.files.upfile.path, 'base64');
-    //l.info("image file base64 encoding : "+data);   
+    l.info(req.files.upfile); // file info
+    const streamData = fs.readFileSync(req.files.upfile.path, 'base64');
+    // l.info("image file base64 encoding : "+data);
     // 2018.11.03 BKMH - https://nodejs.org/api/crypto.html 기준으로 sha256 데이터에 대해 hex값 변환
     const sha256String = crypto.createHash('sha256').update(streamData).digest('hex');
     // 2018.11.03 BKMH - digest('utf-8') -> utf8로 변환
@@ -148,16 +188,263 @@ class BabyChainService {
 
     const args = [];
     args.push(sha256String);
-    
+
+    // 제일 마지막 peer List를 전달하는 부분에 대한 내용 확인
+    return Promise.resolve(fbClient.queryChaincode('babychain', 'readMultiValues', args, []));
+  }
+
+  // 20181214 BKMH Upload Image and Values(for Registered Pools)
+  uploadImageAndValuesForRegistered(req) {
+    l.info('uploadImageAndValuesForRegistered');
+    l.info(`${this.constructor.name}.byId(${req})`);
+    l.info(req.files.upfile); // file info
+    l.info(req.body.value); // input text value
+    const streamData = fs.readFileSync(req.files.upfile.path, 'base64');
+    // l.info("image file base64 encoding : "+data);
+
+    // multer 를 이용한 파일업로드 테스트
+    // upload.single(req.files.upfile, 'testImage');
+
+    // BKMH Upload 된 파일을 기준으로 CouchDB 적재
+
+    // 2018.11.03 BKMH - https://nodejs.org/api/crypto.html 기준으로 sha256 데이터에 대해 hex값 변환
+    const sha256String = crypto.createHash('sha256').update(streamData).digest('hex');
+    // 2018.11.03 BKMH - digest('utf-8') -> utf8로 변환
+    // 2018.11.03 BKMH - 실제 출력할 수 있는 문자열로 변환되지 않음.
+    const uft8Sha256String = crypto.createHash('sha256').update(streamData).digest('utf8');
+
+    l.info('key_encrypted_string : %s', sha256String);
+    l.info('key_encrypted_utf8_string : %s', uft8Sha256String);
+
+    const extension = path.extname(req.files.upfile.originalname);
+    // const basename = path.basename(req.file.upfile.originalname, extension);
+
+    // const newFilePath = path.join('/uploads/', sha256String.concat(extension));
+
+    // const newFilePath = path.join(__dirname, '/uploads/', uft8Sha256String.concat(extension));
+
+    // 2018.11.03 BKMH - 현재 저장폴더가 결정되지 않았으므로, 현재파일의 경로와 동일경로에 /uploads/를 생성하고
+    // 해당 위치에 digest('hex') + 기존 파일의 확장자로 파일 생성
+    // 2018.12.15 BKMH - 차후, FLAG에 따라, 저장되는 경로 변경할 것.
+    const newFilePath = path.join(__dirname, '/uploadRegistered/', sha256String.concat(extension));
+
+    l.info('newFilePath : %s', newFilePath);
+
+    fs.writeFileSync(newFilePath, streamData, 'base64', 'w');
+
+    const args = [];
+
+    args.push(sha256String); // key image
+    args.push(req.body.strcontectnumber); // contectNumber String
+    args.push(req.body.strdetailinfo); // detail infomation for baby
+    args.push('R'); // for registerFlag
+
+    // return Promise.resolve(fbClient.invokeChaincode('babychain', 'register', args, []));
+    return Promise.resolve(fbClient.invokeChaincode('babychain', 'registerMultiValues', args, []));
+  }
+
+  // 20181215 BKMH read Image and Values
+  readImageAndValuesforRegistered(req) {
+    l.info('readImageAndValuesforRegistered');
+    l.info(req.files.upfile); // file info
+    const streamData = fs.readFileSync(req.files.upfile.path, 'base64');
+    // l.info("image file base64 encoding : "+data);
+    // 2018.11.03 BKMH - https://nodejs.org/api/crypto.html 기준으로 sha256 데이터에 대해 hex값 변환
+    const sha256String = crypto.createHash('sha256').update(streamData).digest('hex');
+    // 2018.11.03 BKMH - digest('utf-8') -> utf8로 변환
+    // 2018.11.03 BKMH - 실제 출력할 수 있는 문자열로 변환되지 않음.
+    const uft8Sha256String = crypto.createHash('sha256').update(streamData).digest('utf8');
+
+    l.info('key_encrypted_string : %s', sha256String);
+    l.info('key_encrypted_utf8_string : %s', uft8Sha256String);
+
+    const args = [];
+    args.push(sha256String);
+    args.push('R'); // dataFlag = R 사전등록
+
+    // 20181218 조회된 결과를 기준으로 이미지를 검색하여 조립하는 부분 추가 필요
+
+    // 제일 마지막 peer List를 전달하는 부분에 대한 내용 확인
+    return Promise.resolve(fbClient.queryChaincode('babychain', 'readMultiValues', args, []));
+  }
+
+  // 20181214 BKMH Upload Image and Values(for Missing Pools)
+  uploadImageAndValuesForMissing(req) {
+    l.info('uploadImageAndValuesForMissing');
+    l.info(`${this.constructor.name}.byId(${req})`);
+    l.info(req.files.upfile); // file info
+    l.info(req.body.value); // input text value
+    const streamData = fs.readFileSync(req.files.upfile.path, 'base64');
+    // l.info("image file base64 encoding : "+data);
+
+    // multer 를 이용한 파일업로드 테스트
+    // upload.single(req.files.upfile, 'testImage');
+
+    // BKMH Upload 된 파일을 기준으로 CouchDB 적재
+
+    // 2018.11.03 BKMH - https://nodejs.org/api/crypto.html 기준으로 sha256 데이터에 대해 hex값 변환
+    const sha256String = crypto.createHash('sha256').update(streamData).digest('hex');
+    // 2018.11.03 BKMH - digest('utf-8') -> utf8로 변환
+    // 2018.11.03 BKMH - 실제 출력할 수 있는 문자열로 변환되지 않음.
+    const uft8Sha256String = crypto.createHash('sha256').update(streamData).digest('utf8');
+
+    l.info('key_encrypted_string : %s', sha256String);
+    l.info('key_encrypted_utf8_string : %s', uft8Sha256String);
+
+    const extension = path.extname(req.files.upfile.originalname);
+    // const basename = path.basename(req.file.upfile.originalname, extension);
+
+    // const newFilePath = path.join('/uploads/', sha256String.concat(extension));
+
+    // const newFilePath = path.join(__dirname, '/uploads/', uft8Sha256String.concat(extension));
+
+    // 2018.11.03 BKMH - 현재 저장폴더가 결정되지 않았으므로, 현재파일의 경로와 동일경로에 /uploads/를 생성하고
+    // 해당 위치에 digest('hex') + 기존 파일의 확장자로 파일 생성
+    // 2018.12.15 BKMH - 차후, FLAG에 따라, 저장되는 경로 변경할 것.
+    const newFilePath = path.join(__dirname, '/uploadMissing/', sha256String.concat(extension));
+
+    l.info('newFilePath : %s', newFilePath);
+
+    fs.writeFileSync(newFilePath, streamData, 'base64', 'w');
+
+    const args = [];
+
+    args.push(sha256String); // key image
+    args.push(req.body.strcontectnumber); // contectNumber String
+    args.push(req.body.strdetailinfo); // detail infomation for baby
+    args.push('M'); // for registerFlag
+
+    // return Promise.resolve(fbClient.invokeChaincode('babychain', 'register', args, []));
+    return Promise.resolve(fbClient.invokeChaincode('babychain', 'registerMultiValues', args, []));
+  }
+
+// 20181215 BKMH read Image and Values
+  readImageAndValuesforMissing(req) {
+    l.info('readImageAndValuesforMissing');
+    l.info(req.files.upfile); // file info
+    const streamData = fs.readFileSync(req.files.upfile.path, 'base64');
+    // l.info("image file base64 encoding : "+data);
+    // 2018.11.03 BKMH - https://nodejs.org/api/crypto.html 기준으로 sha256 데이터에 대해 hex값 변환
+    const sha256String = crypto.createHash('sha256').update(streamData).digest('hex');
+    // 2018.11.03 BKMH - digest('utf-8') -> utf8로 변환
+    // 2018.11.03 BKMH - 실제 출력할 수 있는 문자열로 변환되지 않음.
+    const uft8Sha256String = crypto.createHash('sha256').update(streamData).digest('utf8');
+
+    l.info('key_encrypted_string : %s', sha256String);
+    l.info('key_encrypted_utf8_string : %s', uft8Sha256String);
+
+    const args = [];
+    args.push(sha256String);
+    args.push('M'); // dataFlag = M 실종아동
+
+    // 20181218 조회된 결과를 기준으로 이미지를 검색하여 조립하는 부분 추가 필요
+
+    // 제일 마지막 peer List를 전달하는 부분에 대한 내용 확인
+    return Promise.resolve(fbClient.queryChaincode('babychain', 'readMultiValues', args, []));
+  }
+
+  // 20181214 BKMH Upload Image and Values(for Protected Pools)
+  uploadImageAndValuesForProtected(req) {
+    l.info('uploadImageAndValuesForProtected');
+    l.info(`${this.constructor.name}.byId(${req})`);
+    l.info(req.files.upfile); // file info
+    l.info(req.body.value); // input text value
+    const streamData = fs.readFileSync(req.files.upfile.path, 'base64');
+    // l.info("image file base64 encoding : "+data);
+
+    // multer 를 이용한 파일업로드 테스트
+    // upload.single(req.files.upfile, 'testImage');
+
+    // BKMH Upload 된 파일을 기준으로 CouchDB 적재
+
+    // 2018.11.03 BKMH - https://nodejs.org/api/crypto.html 기준으로 sha256 데이터에 대해 hex값 변환
+    const sha256String = crypto.createHash('sha256').update(streamData).digest('hex');
+    // 2018.11.03 BKMH - digest('utf-8') -> utf8로 변환
+    // 2018.11.03 BKMH - 실제 출력할 수 있는 문자열로 변환되지 않음.
+    const uft8Sha256String = crypto.createHash('sha256').update(streamData).digest('utf8');
+
+    l.info('key_encrypted_string : %s', sha256String);
+    l.info('key_encrypted_utf8_string : %s', uft8Sha256String);
+
+    const extension = path.extname(req.files.upfile.originalname);
+    // const basename = path.basename(req.file.upfile.originalname, extension);
+
+    // const newFilePath = path.join('/uploads/', sha256String.concat(extension));
+
+    // const newFilePath = path.join(__dirname, '/uploads/', uft8Sha256String.concat(extension));
+
+    // 2018.11.03 BKMH - 현재 저장폴더가 결정되지 않았으므로, 현재파일의 경로와 동일경로에 /uploads/를 생성하고
+    // 해당 위치에 digest('hex') + 기존 파일의 확장자로 파일 생성
+    // 2018.12.15 BKMH - 차후, FLAG에 따라, 저장되는 경로 변경할 것.
+    const newFilePath = path.join(__dirname, '/uploadProtected/', sha256String.concat(extension));
+
+    l.info('newFilePath : %s', newFilePath);
+
+    fs.writeFileSync(newFilePath, streamData, 'base64', 'w');
+
+    const args = [];
+
+    args.push(sha256String); // key image
+    args.push(req.body.strcontectnumber); // contectNumber String
+    args.push(req.body.strdetailinfo); // detail infomation for baby
+    args.push('P'); // for registerFlag
+
+    // return Promise.resolve(fbClient.invokeChaincode('babychain', 'register', args, []));
+    return Promise.resolve(fbClient.invokeChaincode('babychain', 'registerMultiValues', args, []));
+  }
+
+  // 20181215 BKMH read Image and Values
+  readImageAndValuesforProtected(req) {
+    l.info('readImageAndValuesforProtected');
+    l.info(req.files.upfile); // file info
+    const streamData = fs.readFileSync(req.files.upfile.path, 'base64');
+    // l.info("image file base64 encoding : "+data);
+    // 2018.11.03 BKMH - https://nodejs.org/api/crypto.html 기준으로 sha256 데이터에 대해 hex값 변환
+    const sha256String = crypto.createHash('sha256').update(streamData).digest('hex');
+    // 2018.11.03 BKMH - digest('utf-8') -> utf8로 변환
+    // 2018.11.03 BKMH - 실제 출력할 수 있는 문자열로 변환되지 않음.
+    const uft8Sha256String = crypto.createHash('sha256').update(streamData).digest('utf8');
+
+    l.info('key_encrypted_string : %s', sha256String);
+    l.info('key_encrypted_utf8_string : %s', uft8Sha256String);
+
+    const args = [];
+    args.push(sha256String);
+    args.push('P'); // dataFlag = P 보호아동
+
+    // 20181218 조회된 결과를 기준으로 이미지를 검색하여 조립하는 부분 추가 필요
+
+    // 제일 마지막 peer List를 전달하는 부분에 대한 내용 확인
+    return Promise.resolve(fbClient.queryChaincode('babychain', 'readMultiValues', args, []));
+  }
+
+  // 20181101 sally upload image to text
+  readImageToText(req, res) {
+    l.info('readImage test');
+    l.info(req.files.upfile); // file info
+    const streamData = fs.readFileSync(req.files.upfile.path, 'base64');
+    // l.info("image file base64 encoding : "+data);
+    // 2018.11.03 BKMH - https://nodejs.org/api/crypto.html 기준으로 sha256 데이터에 대해 hex값 변환
+    const sha256String = crypto.createHash('sha256').update(streamData).digest('hex');
+    // 2018.11.03 BKMH - digest('utf-8') -> utf8로 변환
+    // 2018.11.03 BKMH - 실제 출력할 수 있는 문자열로 변환되지 않음.
+    const uft8Sha256String = crypto.createHash('sha256').update(streamData).digest('utf8');
+
+    l.info('key_encrypted_string : %s', sha256String);
+    l.info('key_encrypted_utf8_string : %s', uft8Sha256String);
+
+    const args = [];
+    args.push(sha256String);
+
     return Promise.resolve(fbClient.queryChaincode('babychain', 'query', args, []));
   }
 
   modifyImageToText(req, res) {
     l.info('modifyImageToText test');
     l.info(`${this.constructor.name}.byId(${req})`);
-    l.info(req.files.upfile);             //file info
-    l.info(req.body.value);               //input text value
-    var streamData = fs.readFileSync(req.files.upfile.path, 'base64');
+    l.info(req.files.upfile); // file info
+    l.info(req.body.value); // input text value
+    const streamData = fs.readFileSync(req.files.upfile.path, 'base64');
 
     // 2018.11.03 BKMH - https://nodejs.org/api/crypto.html 기준으로 sha256 데이터에 대해 hex값 변환
     const sha256String = crypto.createHash('sha256').update(streamData).digest('hex');
@@ -165,6 +452,7 @@ class BabyChainService {
     const extension = path.extname(req.files.upfile.originalname);
     // 2018.11.03 BKMH - 현재 저장폴더가 결정되지 않았으므로, 현재파일의 경로와 동일경로에 /uploads/를 생성하고
     // 해당 위치에 digest('hex') + 기존 파일의 확장자로 파일 생성
+    // TODO 2018.12.14 BKMH - 차후 요청 FLAG에 따라 파일 저장폴더 분리
     const newFilePath = path.join(__dirname, '/uploads/', sha256String.concat(extension));
 
     // BKMH 수정 대상 물리 파일 존재여부 확인
@@ -179,18 +467,18 @@ class BabyChainService {
 
     const args = [];
 
-    args.push(sha256String);    //key image
-    args.push(req.body.value);  //value text string
+    args.push(sha256String); // key image
+    args.push(req.body.value); // value text string
 
     return Promise.resolve(fbClient.invokeChaincode('babychain', 'modify', args, []));
   }
 
   deleteImageToText(req, res) {
     l.info('deleteImageToText test');
-    l.info(req.files.upfile);             //file info
-    //var data = fs.readFileSync(req.files.upfile.path, 'base64');
+    l.info(req.files.upfile); // file info
+    // var data = fs.readFileSync(req.files.upfile.path, 'base64');
     const streamData = fs.readFileSync(req.files.upfile.path, 'base64');
-    
+
     // 2018.11.03 BKMH - https://nodejs.org/api/crypto.html 기준으로 sha256 데이터에 대해 hex값 변환
     const sha256String = crypto.createHash('sha256').update(streamData).digest('hex');
 
@@ -208,7 +496,7 @@ class BabyChainService {
       l.info('Delete Target Image is existed.');
       return new Error('Delete File is not Existed');
     }
-    
+
     // BKMH 존재하는 파일을 삭제한다.
     fs.unlinkSync(targetFilePath);
 
@@ -261,38 +549,6 @@ class BabyChainService {
     args.push(req.params.key);
     return Promise.resolve(fbClient.invokeChaincode('babychain', 'delete', args, []));
   }
-
-    // 20181110 sally upload image to text
-    uploadImageAndValues(req, res) {
-    
-      l.info('upload image and values');
-      l.info(`${this.constructor.name}.byId(${req})`);
-      l.info(req.files.upfile);             //file info
-      l.info(req.body.value1);               //input text value
-      l.info(req.body.value2);
-      l.info(req.body.value3);    
-      var streamData = fs.readFileSync(req.files.upfile.path, 'base64');
-      const sha256String = crypto.createHash('sha256').update(streamData).digest('hex');
-      const uft8Sha256String = crypto.createHash('sha256').update(streamData).digest('utf8');
-  
-      l.info('key_encrypted_string : %s', sha256String);
-      l.info('key_encrypted_utf8_string : %s', uft8Sha256String);
-  
-      //const extension = path.extname(req.files.upfile.originalname);
-      //const newFilePath = path.join(__dirname, '/uploads/', sha256String.concat(extension));
-      //l.info('newFilePath : %s', newFilePath);
-      //fs.writeFileSync(newFilePath, streamData, 'base64', 'w');
-  
-      const args = [];  
-      args.push(sha256String);    //key image 
-      args.push(req.body.value1);  //value text string
-      args.push(req.body.value2); 
-      args.push(req.body.value3); 
-        
-      return Promise.resolve(fbClient.invokeChaincode('babychain', 'registerMultiValues', args, []));
-    
-    }
-
 }
 
 export default new BabyChainService();

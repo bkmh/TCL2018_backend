@@ -18,6 +18,7 @@ function format_query_resp(peer_responses) {
     peer_payloads: [],
     error: null,
   };
+
   let last = null;
 
   // -- iter on each peer's response -- //
@@ -28,8 +29,12 @@ function format_query_resp(peer_responses) {
     ret.peer_payloads.push(as_string);
 
     // -- compare peer responses -- //
-    if (last != null) {									// check if all peers agree
+
+    // check if all peers agree
+    if (last != null) {
+
       if (last !== as_string) {
+
         logger.warn('[fcw] warning - some peers do not agree on query', last, as_string);
         ret.peers_agree = false;
       }
@@ -69,6 +74,8 @@ function known_sdk_errors(str) {
   return false;
 }
 
+// 2018.12.15 BKMH TODO response_payloads 관련 항목 수정
+// 실제로 항목을 조립하는 것이 아니라, 조회 Tx에 대해 모든 peer의 endorsement 여부를 판단함.
 function queryChaincode(client, channelName, req, targets) {
   l.debug(`queryChaincode(${req.chaincodeId}, ${req.fcn}, [${req.args}])`);
   l.info(`Query Targets : ${targets}`);
@@ -78,7 +85,7 @@ function queryChaincode(client, channelName, req, targets) {
     l.info(`Member '${invoker.getName()}' try to query ~`);
 
     const channel = client.getChannel(channelName);
-    l.info('channel : ' + channel);
+    l.info(`channel : ${channel}`);
     const tx_id = client.newTransactionID();
 
     // send query
@@ -99,10 +106,11 @@ function queryChaincode(client, channelName, req, targets) {
           const result = [];
           for (let i = 0; i < response_payloads.length; i++) {
             result.push((response_payloads[i] instanceof Error) ? response_payloads : format_query_resp(response_payloads));
-            l.info("transaction.js 파일 response_payloads");
-            //l.info(format_query_resp(response_payloads));
-            //l.info(response_payloads);
+            l.info('transaction.js 파일 response_payloads');
+            // l.info(format_query_resp(response_payloads));
+            // l.info(response_payloads);
           }
+
           resolve(result);
         } else {
           l.error('Failed to get response on query - response_payloads is null');

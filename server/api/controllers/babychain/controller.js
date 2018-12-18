@@ -2,7 +2,6 @@ import BabyChainService from '../../services/babychain/babychain.service';
 
 
 export class Controller {
-
   // 20181030 BKMH 기존 uploadImage 원복
   // babychain.service.js 연관
   uploadImage(req, res) {
@@ -24,6 +23,7 @@ export class Controller {
         else res.status(404).end();
       });
   }
+
   // 20181101 sally upload image to text
   uploadImageToText(req, res) {
     BabyChainService
@@ -61,9 +61,10 @@ export class Controller {
         else res.status(404).end();
       });
   }
-  
-   // 20181110 sally upload image and values
-   uploadImageAndValues(req, res) {
+
+  // 20181110 sally upload image and values
+  // 20181214 BKMH Upload image and values(add flag)
+  uploadImageAndValues(req, res) {
     BabyChainService
       .uploadImageAndValues(req, res)
       .then(r => {
@@ -71,7 +72,83 @@ export class Controller {
         else res.status(404).end();
       });
   }
+  
+  // 20181110 sally upload image and values
+  // 20181214 BKMH Upload image and values(add flag)
+  readImageAndValues(req, res) {
+    BabyChainService
+      .readImageAndValues(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
 
+  // 20181110 sally upload image and values
+  // 20181214 BKMH Upload image and values(add flag)
+  uploadImageAndValuesForRegistered(req, res) {
+    BabyChainService
+      .uploadImageAndValues(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
+  
+  // 20181110 sally upload image and values
+  // 20181214 BKMH Upload image and values(add flag)
+  readImageAndValuesForRegistered(req, res) {
+    BabyChainService
+      .readImageAndValues(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
+  
+  // 20181110 sally upload image and values
+  // 20181214 BKMH Upload image and values(add flag)
+  uploadImageAndValuesForProtected(req, res) {
+    BabyChainService
+      .uploadImageAndValues(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
+  
+  // 20181110 sally upload image and values
+  // 20181214 BKMH Upload image and values(add flag)
+  readImageAndValuesForProtected(req, res) {
+    BabyChainService
+      .readImageAndValues(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
+  
+  // 20181110 sally upload image and values
+  // 20181214 BKMH Upload image and values(add flag)
+  uploadImageAndValuesForMissing(req, res) {
+    BabyChainService
+      .uploadImageAndValues(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
+  
+  // 20181110 sally upload image and values
+  // 20181214 BKMH Upload image and values(add flag)
+  readImageAndValuesForMissing(req, res) {
+    BabyChainService
+      .readImageAndValues(req, res)
+      .then(r => {
+        if (r) res.json(r);
+        else res.status(404).end();
+      });
+  }
 
   getBaby(req, res) {
     BabyChainService
@@ -81,7 +158,7 @@ export class Controller {
         else res.status(404).end();
       });
   }
- 
+
   register(req, res) {
     BabyChainService
       .register(req, res)
@@ -109,7 +186,7 @@ export class Controller {
         else res.status(404).end();
       });
   }
-  
+
   postdelete(req, res) {
     BabyChainService
       .postdelete(req, res)
@@ -118,7 +195,5 @@ export class Controller {
         else res.status(404).end();
       });
   }
-
-
 }
 export default new Controller();
