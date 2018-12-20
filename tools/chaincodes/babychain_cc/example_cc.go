@@ -117,6 +117,10 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.registerMultiValues(stub, args)
 	}
 
+	if function == "readMultiValues" {
+		return t.readMultiValues(stub, args)
+	}
+
 	logger.Errorf("Unknown action, check the first argument, must be one of 'register', 'delete', 'query', or 'modify'. But got: %v", args[0])
 	return shim.Error(fmt.Sprintf("Unknown action, check the first argument, must be one of 'delete', 'query', or 'move'. But got: %v", args[0]))
 }
@@ -394,7 +398,7 @@ func (t *SimpleChaincode) readMultiValues(stub shim.ChaincodeStubInterface, args
 		return shim.Error(jsonResp)
 	}
 
-	logger.Infof("Query Raw Data : %s\n", queryResult)
+	logger.Infof("Query Raw Data : %v\n", queryResult)
 
 	// 20181215 BKMH - 해당 부분에 대해서 실제 query 결과를 어떻게 조립할 것인지 판단 필요
 	jsonResp := "{\"key\":\"" + key + "\",\"value\":\"" + string(queryResult) + "\"}"

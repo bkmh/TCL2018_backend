@@ -154,7 +154,13 @@ class BabyChainService {
     // 2018.11.03 BKMH - 현재 저장폴더가 결정되지 않았으므로, 현재파일의 경로와 동일경로에 /uploads/를 생성하고
     // 해당 위치에 digest('hex') + 기존 파일의 확장자로 파일 생성
     // 2018.12.15 BKMH - 차후, FLAG에 따라, 저장되는 경로 변경할 것.
-    const newFilePath = path.join(__dirname, '/uploads/', sha256String.concat(extension));
+    const strDestination = path.join(__dirname, '/uploads/');
+
+    if (!fs.existsSync(strDestination)) {
+      fs.mkdirSync(strDestination);
+    }
+
+    const newFilePath = path.join(strDestination, sha256String.concat(extension));
 
     l.info('newFilePath : %s', newFilePath);
 
@@ -190,7 +196,22 @@ class BabyChainService {
     args.push(sha256String);
 
     // 제일 마지막 peer List를 전달하는 부분에 대한 내용 확인
-    return Promise.resolve(fbClient.queryChaincode('babychain', 'readMultiValues', args, []));
+    // 해당 함수를 호출하여, 이미지에 해당하는 값을 확인하고, 실제 로컬에 떨어진 파일이 존재한다면, 해당 이미지에 대한 출력값을
+    // 어떻게 제공할 것인지 판단 필요함.
+    // 일단 기존 front 에서 base64로 데이터를 전달받아, 처리하고 있으므로
+    // base64 String을 전달할 수 있도록 로직 수정
+    const result = Promise.resolve(fbClient.queryChaincode('babychain', 'readMultiValues', args, []));
+
+    if (result != null) {
+      const babyInfo = result.parsed;
+      // transaction.js 를 통해 전달되는 값을 확인하여 변경할 것
+      // 혹은 그 전에 호출되는지 확인 할것 JSON.parse는 현재 미구동
+
+      // BKMH 해당 부분을 확인하여 전달되는 값이 존재하는 경우, 해당 값을 기준으로 파일을 확인하고, 다시 base64를 붙여서 반환
+      l.info('return for chaincode : %s', babyInfo.contactNum);
+    }
+
+    return result;
   }
 
   // 20181214 BKMH Upload Image and Values(for Registered Pools)
